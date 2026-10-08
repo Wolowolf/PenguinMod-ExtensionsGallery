@@ -4,7 +4,7 @@
     "private": true,
     "scripts": {
         "dev": "vite dev",
-        "build": "vite build",
+        "build": "node scripts/write-extension-list.js && vite build",
         "preview": "vite preview"
     },
     "devDependencies": {
