@@ -11,4 +11,6 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 /temp
 .dev
-desktop.ini/static/generated-extension-list.json
+desktop.ini
+/static/generated-extension-list.json
+
