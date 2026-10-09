@@ -7,8 +7,6 @@ import PageParticleTools from "./particle-tools.md?raw";
 
 // Extra Control (unlisted)
 import PageExtraControl from "./Extra-Control.md?raw";
-// Free Servers
-import PageFreeServers from "./FreeServers.md?raw";
 
 // TurboWeather
 import PageTurboWeather from "./TurboWeather.md?raw";
@@ -19,8 +17,6 @@ import PageNumberUtilities from "./NumberUtilities.md?raw";
 // PenguinAI
 import PagePenguinAI from "./PenguinAI.md?raw";
 
-// AuthPenguin
-import PageAuthPenguin from "./AuthPenguin.md?raw";
 
 // YeetYourFiles
 import PageYeetYourFiles from "./YeetYourFiles.md?raw";
@@ -29,8 +25,6 @@ import PageYeetYourFiles from "./YeetYourFiles.md?raw";
 // Boxed Physics
 import BoxedPhysics from "./BoxedPhysics.md?raw";
 
-//Paint Utils
-import PaintUtils from "./PaintUtils.md?raw";
 
 // Resolution
 import Resolution from "./Resolution.md?raw";
@@ -44,8 +38,6 @@ import DateFormatV2 from "./DateFormatV2.md?raw";
 // ODE
 import ODE from "./ODE.md?raw";
 
-// TurboSynth
-import TurboSynth from "./TurboSynth.md?raw";
 
 export default {
     // the key is the path to the docs page
@@ -54,8 +46,6 @@ export default {
     "particle-tools": PageParticleTools,
     "Extra-Control": PageExtraControl,
 
-    // FreeServers
-    "FreeServers": PageFreeServers,
 
     //TurboWeather
     "TurboWeather": PageTurboWeather,
@@ -66,8 +56,6 @@ export default {
     // PenguinAI
     "PenguinAI": PagePenguinAI,
 
-    // AuthPenguin
-    "AuthPenguin": PageAuthPenguin,
 
     // YeetYourFiles
     "YeetYourFiles": PageYeetYourFiles,
@@ -76,8 +64,6 @@ export default {
     // Boxed Physics
     "BoxedPhysics": BoxedPhysics,
 
-    //Paint Utils
-    "PaintUtils": PaintUtils,
     
     // Resolution
     "Resolution": Resolution,
@@ -90,6 +76,4 @@ export default {
     // ODE
     "ODE": ODE,
 
-    // TurboSynth
-    "TurboSynth": TurboSynth
 };
