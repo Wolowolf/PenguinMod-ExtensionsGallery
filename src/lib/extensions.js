@@ -31,14 +31,6 @@ export default [
         creator: "Gen1x",
     },
     {
-        name: "MotionSprite",
-        description: "An advanced math-based animation system",
-        code: "TheShovel/qoan-renderer.js",
-        banner: "TheShovel/thumbnail-motionsprite.avif",
-        creator: "TheShovel",
-        isGitHub: true,
-    },
-    {
         name: "Iris Text",
         description: "A heavily-expanded text engine loosely based on Animated Text! Adds support for rich text, per-character control, and more!",
         code: "Gen1x/iris-text.js",
@@ -204,16 +196,6 @@ export default [
         tags: ["customtype", "iterators", "data", "utility", "builder"]
     },
     {
-        name: "Algebraic Effects",
-        description: "Intercept custom actions in your scripts to pause, resume, or redirect their flow using modular handlers.",
-        code: "Div/divAlgEffects.js",
-        banner: "Div/divAlgEffects.svg",
-        creator: "Dicuo",
-        creatorAlias: "Div",
-        isGitHub: true,
-        tags: ["effects", "control", "data", "utility"]
-    },
-    {
         name: "3D Vectors & Quaternions",
         description: "Perform 3D Math and Rotations with Vectors and Quaternions",
         code: "Div/divVecQuat.js",
@@ -239,24 +221,6 @@ export default [
         banner: "MubiLop/toastnotifs.avif",
         creator: "cicerorph",
         creatorAlias: "MubiLop",
-        isGitHub: true,
-    },
-    {
-        name: "Project Interfaces",
-        description: "Effortlessly create intuitive graphical user interfaces in your projects.",
-        notes: "Gallery banner by Dillon",
-        code: "LordCat0/ProjectInterfaces.js",
-        banner: "LordCat0/ProjectInterfaces.avif",
-        creator: "LordCat0",
-        creatorAlias: "Lord cat",
-        isGitHub: true,
-    },
-    {
-        name: "Pang API",
-        description: "Fetch information from the PenguinMod API.",
-        code: "SammerLOL/pangapi.js",
-        banner: "SammerLOL/pangapi.avif",
-        creator: "oc9x97",
         isGitHub: true,
     },
     {
@@ -422,15 +386,6 @@ export default [
         code: "NishiOwO/ode.js",
         banner: "NishiOwO/ode.svg",
         documentation: "ODE",
-        creator: "NishiOwO",
-        isGitHub: true,
-        tags: ["new"],
-    },
-    {
-        name: "Libxmp",
-        description: "Play tracker modules using Libxmp.",
-        code: "NishiOwO/libxmp.js",
-        banner: "NishiOwO/libxmp.svg",
         creator: "NishiOwO",
         isGitHub: true,
         tags: ["new"],

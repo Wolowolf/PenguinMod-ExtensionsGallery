@@ -29,9 +29,6 @@ import BoxedPhysics from "./BoxedPhysics.md?raw";
 // Resolution
 import Resolution from "./Resolution.md?raw";
 
-// Project Interfaces
-import ProjectInterfaces from "./ProjectInterfaces.md?raw";
-
 // Date Format V2
 import DateFormatV2 from "./DateFormatV2.md?raw";
 
@@ -67,9 +64,6 @@ export default {
     
     // Resolution
     "Resolution": Resolution,
-
-    // Project Interfaces
-    "ProjectInterfaces": ProjectInterfaces,
 
     "DateFormatV2": DateFormatV2,
 
