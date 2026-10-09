@@ -326,14 +326,6 @@ export default [
         tags: ["data", "utility", "text"],
     },
     {
-        name: "All Menus",
-        description: "Every dropdown menu for each block, in one extension.",
-        code: "Lily/AllMenus.js",
-        banner: "Lily/AllMenus.svg",
-        creator: "LilyMakesThings",
-        isGitHub: false,
-    },
-    {
         name: "Extension Exposer",
         description: "Access the raw functions from other extensions.",
         notes: "Some contributions by yuri-kiss :P",
