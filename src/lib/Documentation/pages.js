@@ -25,7 +25,6 @@ import PageAuthPenguin from "./AuthPenguin.md?raw";
 // YeetYourFiles
 import PageYeetYourFiles from "./YeetYourFiles.md?raw";
 
-import PageMoreTypes from "./More-Types.md?raw";
 
 // Boxed Physics
 import BoxedPhysics from "./BoxedPhysics.md?raw";
@@ -73,7 +72,6 @@ export default {
     // YeetYourFiles
     "YeetYourFiles": PageYeetYourFiles,
 
-    "more-types": PageMoreTypes,
 
     // Boxed Physics
     "BoxedPhysics": BoxedPhysics,

@@ -7,13 +7,6 @@
 // a sakura
 export default [
     {
-        name: "Pen+",
-        description: "Extended pen section! Adds blocks for drawing triangles using textures and tints, drawing images and editing their pixels, etc.",
-        code: "ObviousAlexC/PenPlus.js",
-        banner: "ObviousAlexC/PenPlus.svg",
-        creator: "pinksheep2917",
-    },
-    {
         name: "Shovel Debugger",
         description: "Shovel's improved and feature rich debugger!",
         code: "TheShovel/shoveldebugger.js",
@@ -137,14 +130,6 @@ export default [
         isGitHub: true,
     },
     {
-        name: "CloudLink",
-        description: "A powerful WebSocket extension for Scratch. Allows for online connectivity to servers for things like multiplayer.",
-        code: "MikeDev101/cloudlink.js",
-        banner: "MikeDev101/cloudlink.svg",
-        creator: "MikeDev101",
-        isGitHub: true,
-    },
-    {
         name: "E2EE",
         description: "A general-purpose E2EE (End-to-End Encryption) extension for Scratch.",
         code: "MikeDev101/e2ee.js",
@@ -178,14 +163,6 @@ export default [
         documentation: "NumberUtilities",
         creator: "cicerorph",
         creatorAlias: "MubiLop",
-        isGitHub: true,
-    },
-    {
-        name: "Mathematics",
-        description: "Complicated maths extension for nerds.",
-        code: "jwklong/mathematics.js",
-        banner: "jwklong/mathematics.avif",
-        creator: "jwklong",
         isGitHub: true,
     },
     {
@@ -366,14 +343,6 @@ export default [
         isGitHub: true,
     },
     {
-        name: "More Fields",
-        description: "Custom Field Types",
-        code: "Ashime/MoreFields.js",
-        banner: "0znzw/MoreFields.avif",
-        creator: "yuri-kiss",
-        isGitHub: true,
-    },
-    {
         name: "Beepbox Player",
         description: "Play, edit, and read songs from any BeepBox mod directly from the URL or JSON!",
         code: "DogeisCut/BeepBoxPlayer.js",
@@ -470,14 +439,6 @@ export default [
         isGitHub: true,
     },
     {
-        name: "More Types",
-        description: "Adds more value types to PenguinMod, implementing Functions, Objects, Arrays, Sets, Maps, Symbols and Nothing.",
-        code: "VeryGoodScratcher42/More-Types.js",
-        banner: "VeryGoodScratcher42/More-Types.avif",
-        creator: "VeryGoodScratcher42",
-        isGitHub: false,
-    },
-    {
         name: "Resolution",
         description: "Provides utility blocks that simplify the creation of projects with dynamic resolution support.",
         notes: "Gallery banner by Dillon",
@@ -514,14 +475,6 @@ export default [
         creator: "Gen1xLol",
     },
     {
-        name: "CATS",
-        description: "Blocks related to cats.",
-        code: "Gen1x/CATS.js",
-        banner: "Gen1x/cats.avif",
-        isGitHub: true,
-        creator: "Gen1xLol",
-    },
-    {
         name: "Free Servers",
         description: "Here you can find a free server for your projects. And also check whether it is working now or not.\n\nЗдесь вы можете найти бесплатный сервер для своих проектов. А также проверить, работает он сейчас или нет.",
         code: "WAYLIVES/FreeServers.js",
@@ -529,22 +482,6 @@ export default [
         documentation: "FreeServers",
         creator: "WAYLIVES",
         isGitHub: false,
-    },
-    /*{
-        name: "More Types",
-        description: "Adds more value types to PenguinMod, implementing Functions, Objects, Arrays, Sets, Maps, Symbols and Nothing.",
-        code: "VeryGoodScratcher42/More-Types.js",
-        banner: "VeryGoodScratcher42/More-Types.avif",
-        creator: "VeryGoodScratcher42",
-        isGitHub: false,
-    },*/
-    {
-        name: "oneko",
-        description: "Cute cat that follows you on the block area.",
-        code: "TheShovel/oneko.js",
-        banner: "TheShovel/thumbnail-oneko.avif",
-        creator: "TheShovel",
-        isGitHub: true,
     },
     {
         name: "Counter++",
@@ -572,37 +509,10 @@ export default [
         isGitHub: true,
     },
     {
-        name: "Smoke Detector",
-        description: "Plays a beep every 30 seconds.",
-        code: "electricfuzzball_pm/firealarm.js",
-        banner: "electricfuzzball_pm/firealarm.svg",
-        creator: "FloppyDisk-OSC",
-        creatorAlias: "ElectricFuzzball_PM",
-        isGitHub: true,
-    },
-    {
-        name: "Stage Brah",
-        description: "Spawn Brah cats in your codespace!",
-        code: "electricfuzzball_pm/StageBrah.js",
-        banner: "electricfuzzball_pm/StageBrah.svg",
-        creator: "FloppyDisk-OSC",
-        creatorAlias: "ElectricFuzzball_PM",
-        isGitHub: true,
-    },
-    {
         name: "MIDI Controller",
         description: "Use a MIDI keyboard to interact with projects!",
         code: "electricfuzzball_pm/MIDI.js",
         banner: "electricfuzzball_pm/MIDI.svg",
-        creator: "FloppyDisk-OSC",
-        creatorAlias: "ElectricFuzzball_PM",
-        isGitHub: true,
-    },
-    {
-        name: "Black Mold",
-        description: "mmmmm black mold",
-        code: "electricfuzzball_pm/blackMold.js",
-        banner: "electricfuzzball_pm/blackMold.svg",
         creator: "FloppyDisk-OSC",
         creatorAlias: "ElectricFuzzball_PM",
         isGitHub: true,
