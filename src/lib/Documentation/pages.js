@@ -30,10 +30,7 @@ import BoxedPhysics from "./BoxedPhysics.md?raw";
 import Resolution from "./Resolution.md?raw";
 
 // Date Format V2
-import DateFormatV2 from "./DateFormatV2.md?raw";
 
-// ODE
-import ODE from "./ODE.md?raw";
 
 
 export default {
@@ -65,9 +62,6 @@ export default {
     // Resolution
     "Resolution": Resolution,
 
-    "DateFormatV2": DateFormatV2,
 
-    // ODE
-    "ODE": ODE,
 
 };

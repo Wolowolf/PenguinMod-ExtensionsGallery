@@ -1,16 +1,11 @@
-/* global Scratch, jwArray */
+/* global Scratch */
 // added patch reporter, is a drum? and a thingy velocity 0 thingy whatever the hell
 
-let jwArray = {
-    Type: class {},
-    Block: {},
-    Argument: {}
-};
+// list reporters report a JSON text list such as [60,64,67]
+const toList = items => JSON.stringify(items);
 
 class MIDI {
     constructor() {
-        if (!Scratch.vm.jwArray) Scratch.vm.extensionManager.loadExtensionIdSync("jwArray");
-        jwArray = Scratch.vm.jwArray;
 
         this.activeNotes = new Map();
         this.activePads = new Map();
@@ -83,11 +78,11 @@ class MIDI {
                 { opcode: "currentInstrument", blockType: Scratch.BlockType.REPORTER, text: "current instrument number" },
                 { opcode: "isDrumInstrument", blockType: Scratch.BlockType.BOOLEAN, text: "is drum instrument?" },
 
-                { opcode: "notesPressed", blockType: Scratch.BlockType.REPORTER, text: "notes currently pressed", ...jwArray.Block },
-                { opcode: "notesByChannel", blockType: Scratch.BlockType.REPORTER, text: "notes by channel", ...jwArray.Block },
+                { opcode: "notesPressed", blockType: Scratch.BlockType.REPORTER, text: "notes currently pressed" },
+                { opcode: "notesByChannel", blockType: Scratch.BlockType.REPORTER, text: "notes by channel" },
 
                 { opcode: "notesOnChannel", blockType: Scratch.BlockType.REPORTER, text: "notes on channel [CHANNEL]",
-                  arguments: { CHANNEL: { type: Scratch.ArgumentType.NUMBER, defaultValue: 1 } }, ...jwArray.Block },
+                  arguments: { CHANNEL: { type: Scratch.ArgumentType.NUMBER, defaultValue: 1 } } },
 
                 { opcode: "noteNumberToName", blockType: Scratch.BlockType.REPORTER, text: "note name of [NOTE]",
                   arguments: { NOTE: { type: Scratch.ArgumentType.NUMBER, defaultValue: 60 } } },
@@ -105,7 +100,7 @@ class MIDI {
                 { opcode: "getJoystickY", blockType: Scratch.BlockType.REPORTER, text: "joystick tilt y" },
 
                 { opcode: "lastNNotesPressed", blockType: Scratch.BlockType.REPORTER, text: "last [N] notes pressed",
-                  arguments: { N: { type: Scratch.ArgumentType.NUMBER, defaultValue: 5 } }, ...jwArray.Block },
+                  arguments: { N: { type: Scratch.ArgumentType.NUMBER, defaultValue: 5 } } },
 
                 { opcode: "noteHeldTime", blockType: Scratch.BlockType.REPORTER, text: "time note [NOTE] is held",
                   arguments: { NOTE: { type: Scratch.ArgumentType.NUMBER, defaultValue: 60 } } },
@@ -262,7 +257,7 @@ class MIDI {
         return false;
     }
 
-    lastNNotesPressed(args) { return new jwArray.Type(this.lastNNotes.slice(-args.N)); }
+    lastNNotesPressed(args) { return toList(this.lastNNotes.slice(-args.N)); }
 
     noteHeldTime(args) {
         const n = args.NOTE;
@@ -294,9 +289,9 @@ class MIDI {
     currentPad(){ return this.lastPad; }
     currentPadVelocity(){ return this.lastPadVelocity; }
 
-    notesPressed(){ const arr=[]; for(const notes of this.activeNotes.values()) for(const note of notes.keys()) arr.push(note); for(const pads of this.activePads.values()) for(const pad of pads.keys()) arr.push(pad); return new jwArray.Type(arr); }
-    notesByChannel(){ const arr=[]; for(const [ch,notes] of this.activeNotes.entries()) for(const note of notes.keys()) arr.push(note); for(const [ch,pads] of this.activePads.entries()) for(const pad of pads.keys()) arr.push(pad); return new jwArray.Type(arr); }
-    notesOnChannel(args){ const arr=[]; const channel=args.CHANNEL; if(this.activeNotes.has(channel)) arr.push(...this.activeNotes.get(channel).keys()); if(this.activePads.has(channel)) arr.push(...this.activePads.get(channel).keys()); return new jwArray.Type(arr); }
+    notesPressed(){ const arr=[]; for(const notes of this.activeNotes.values()) for(const note of notes.keys()) arr.push(note); for(const pads of this.activePads.values()) for(const pad of pads.keys()) arr.push(pad); return toList(arr); }
+    notesByChannel(){ const arr=[]; for(const [ch,notes] of this.activeNotes.entries()) for(const note of notes.keys()) arr.push(note); for(const [ch,pads] of this.activePads.entries()) for(const pad of pads.keys()) arr.push(pad); return toList(arr); }
+    notesOnChannel(args){ const arr=[]; const channel=args.CHANNEL; if(this.activeNotes.has(channel)) arr.push(...this.activeNotes.get(channel).keys()); if(this.activePads.has(channel)) arr.push(...this.activePads.get(channel).keys()); return toList(arr); }
     noteNumberToName(args){ const noteNumber=args.NOTE; if(!Number.isInteger(noteNumber)||noteNumber<0||noteNumber>127) return ""; const names=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"]; const octave=Math.floor(noteNumber/12)-1; return names[noteNumber%12]+octave; }
 
     setNote(args){ console.log(`Map note ${args.NOTE} → ${args.EVENT}`); }
