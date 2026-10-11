@@ -78,6 +78,17 @@ Examples:
 - `0.00123` with 3 decimals → `1.230e-3`
 - `1000000` with 1 decimal → `1.0e+6`
 
+### Short Notation
+```scratch
+(format [1234567] in short notation (K, M, B) with [2] decimals :: #59c059)
+```
+Shortens big numbers the way games show them: K (thousand), M (million), B (billion), T, Qa, Qt, Sx, Sp, Oc, No, Dc, then longer names. Trailing zeros are dropped.
+
+Examples:
+- `1234567` with 2 decimals → `1.23M`
+- `1500` with 1 decimal → `1.5K`
+- `999` with 2 decimals → `999`
+
 ## Number Validation
 
 ### Check if Integer

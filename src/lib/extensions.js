@@ -7,22 +7,6 @@
 // a sakura
 export default [
     {
-        name: "Server Storage",
-        description: "Similar to the server storage blocks in the 'Storage' extension, but with a better server uptime and non-global keys.\nDid you know the server is open source?",
-        code: "Ikelene/serverStorageExtension.js",
-        banner: "Ikelene/serverStorageIMG.avif",
-        creator: "Ikelene",
-        isGitHub: true,
-    },
-    {
-        name: "Storage Plus",
-        description: "A storage extension with many more features. Featuring server storage (with a fast server), local storage and more!",
-        code: "Gen1x/storage_plus.js",
-        banner: "Gen1x/storage_plus.avif",
-        isGithub: true,
-        creator: "Gen1x",
-    },
-    {
         name: "Iris Text",
         description: "A heavily-expanded text engine loosely based on Animated Text! Adds support for rich text, per-character control, and more!",
         code: "Gen1x/iris-text.js",
@@ -191,16 +175,6 @@ export default [
         creatorAlias: "Embin",
         isGitHub: true,
         tags: ["data", "utility", "text"],
-    },
-    {
-        name: "Update File (Direct Access)",
-        description: "A simple extension that uses the File System Access API to update files dynamically.",
-        code: "Anonymous_cat1/updateFile.js",
-        banner: "Anonymous_cat1/updateFile.svg",
-        creator: "Anonymous-cat1",
-        isGitHub: true,
-        unstable: true,
-        unstableReason: "File System Access is not supported by all browsers.\nProjects can maliciously edit files that you open.",
     },
     {
         name: "YeetYourFiles",
