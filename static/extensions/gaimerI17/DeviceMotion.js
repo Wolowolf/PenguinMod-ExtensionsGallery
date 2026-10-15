@@ -76,25 +76,8 @@ class gaimeriDeviceMotionExtension {
             blockText: "#000000",
 
             menuIconURI,
-            blocks: [{
-                    opcode: 'deviceAccelerationX',
-                    blockType: Scratch.BlockType.REPORTER,
-                    text: 'device acceleration x',
-                    disableMonitor: false,
-                    hideFromPalette: true
-                }, {
-                    opcode: 'deviceAccelerationY',
-                    blockType: Scratch.BlockType.REPORTER,
-                    text: 'device acceleration y',
-                    disableMonitor: false,
-                    hideFromPalette: true
-                }, {
-                    opcode: 'deviceAccelerationZ',
-                    blockType: Scratch.BlockType.REPORTER,
-                    text: 'device acceleration z',
-                    disableMonitor: false,
-                    hideFromPalette: true
-                }, {
+            blocks: [
+                {
                     opcode: 'deviceAccelerationOnAxis',
                     blockType: Scratch.BlockType.REPORTER,
                     text: 'device acceleration [AXIS]',
@@ -117,25 +100,8 @@ class gaimeriDeviceMotionExtension {
                     text: 'device gravity',
                     disableMonitor: false
                 },
-                '---', {
-                    opcode: 'deviceRotationA',
-                    blockType: Scratch.BlockType.REPORTER,
-                    text: 'device rotation rate alpha',
-                    disableMonitor: false,
-                    hideFromPalette: true
-                }, {
-                    opcode: 'deviceRotationB',
-                    blockType: Scratch.BlockType.REPORTER,
-                    text: 'device rotation rate beta',
-                    disableMonitor: false,
-                    hideFromPalette: true
-                }, {
-                    opcode: 'deviceRotationC',
-                    blockType: Scratch.BlockType.REPORTER,
-                    text: 'device rotation rate gamma',
-                    disableMonitor: false,
-                    hideFromPalette: true
-                }, {
+                '---',
+                {
                     opcode: 'deviceRotationOnAxis',
                     blockType: Scratch.BlockType.REPORTER,
                     text: 'device rotation rate [AXIS]',
@@ -162,25 +128,8 @@ class gaimeriDeviceMotionExtension {
                   isEdgeActivated: false
                 }, 
                      
-                '---', {
-                    opcode: 'deviceDirectionA',
-                    blockType: Scratch.BlockType.REPORTER,
-                    text: 'device direction alpha',
-                    disableMonitor: false,
-                    hideFromPalette: true
-                }, {
-                    opcode: 'deviceDirectionB',
-                    blockType: Scratch.BlockType.REPORTER,
-                    text: 'device direction beta',
-                    disableMonitor: false,
-                    hideFromPalette: true
-                }, {
-                    opcode: 'deviceDirectionC',
-                    blockType: Scratch.BlockType.REPORTER,
-                    text: 'device direction gamma',
-                    disableMonitor: false,
-                    hideFromPalette: true
-                }, {
+                '---',
+                {
                     opcode: 'deviceDirectionOnAxis',
                     blockType: Scratch.BlockType.REPORTER,
                     text: 'device direction [AXIS]',
@@ -272,17 +221,8 @@ class gaimeriDeviceMotionExtension {
 
         };
     }
-    deviceAccelerationX() {
-        return deviceMotionAccelX;
-    }
 
-    deviceAccelerationY() {
-        return deviceMotionAccelY;
-    }
 
-    deviceAccelerationZ() {
-        return deviceMotionAccelZ;
-    }
 
     deviceAccelerationOnAxis(args) {
         switch (args.AXIS) {
@@ -306,17 +246,8 @@ class gaimeriDeviceMotionExtension {
         return deviceMotionAccelMagnitudeWithGravity;
     }
 
-    deviceRotationA() {
-        return deviceRotationRateA;
-    }
 
-    deviceRotationB() {
-        return deviceRotationRateB;
-    }
 
-    deviceRotationC() {
-        return deviceRotationRateC;
-    }
 
     deviceRotationOnAxis(args) {
         switch (args.AXIS) {
@@ -352,17 +283,8 @@ class gaimeriDeviceMotionExtension {
         return deviceMotionInterval;
     }
 
-    deviceDirectionA() {
-        return deviceOrientationAlpha;
-    }
 
-    deviceDirectionB() {
-        return deviceOrientationBeta;
-    }
 
-    deviceDirectionC() {
-        return deviceOrientationGamma;
-    }
 
     deviceDirectionAbs() {
         return deviceOrientationAbs;

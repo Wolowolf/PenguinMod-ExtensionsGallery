@@ -76,19 +76,6 @@
                 type: Scratch.ArgumentType.NUMBER
               }
             }
-          },
-          {
-            opcode: "storeCurrentIP",
-            blockType: Scratch.BlockType.COMMAND,
-            text: "store current IP address",
-            hideFromPalette: true // Im not fond of the idea of storing peoples IPs. Perhaps someone will change that
-          },
-          {
-            opcode: "getStoredIP",
-            blockType: Scratch.BlockType.REPORTER,
-            disableMonitor: true,
-            text: "get stored IP address",
-            hideFromPalette: true // Im not fond of the idea of storing peoples IPs. Perhaps someone will change that
           }
         ],
         menus: {
@@ -224,21 +211,7 @@
       return degrees * (Math.PI / 180);
     }
 
-    async storeCurrentIP() {
-      try {
-        const ip = await this.myIP({version: "IPv4"}); // Store IPv4 IP
-        localStorage.setItem("currentIP", ip);
-        return "IP stored successfully";
-      } catch {
-        return "Error storing IP";
-      }
-    }
 
-    getStoredIP() {
-      const ip = localStorage.getItem("currentIP");
-      if (ip) return ip;
-      else return "No IP stored";
-    }
   }
 
   Scratch.extensions.register(new BPixelCockatiel());

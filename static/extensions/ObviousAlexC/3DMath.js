@@ -165,17 +165,6 @@
           },
           {
             disableMonitor: true,
-            opcode: "mulScalarV3",
-            blockType: Scratch.BlockType.REPORTER,
-            hideFromPalette: true,
-            text: "V3: [a] * number [b]",
-            arguments: {
-              a: { type: Scratch.ArgumentType.STRING, defaultValue: "[0,0,0]" },
-              b: { type: Scratch.ArgumentType.NUMBER, defaultValue: "0" },
-            },
-          },
-          {
-            disableMonitor: true,
             opcode: "dotProductOfV3",
             blockType: Scratch.BlockType.REPORTER,
             text: "V3: dot product between [a] and [b]",
@@ -263,17 +252,6 @@
               source: { type: Scratch.ArgumentType.STRING, defaultValue: "[2,3,0]" },
               normal: { type: Scratch.ArgumentType.STRING, defaultValue: "[0,1,0]" },
               axis: { type: Scratch.ArgumentType.STRING, menu: "axisMenu3" },
-            },
-          },
-          {
-            disableMonitor: true,
-            opcode: "reflectAcrossV3",
-            blockType: Scratch.BlockType.REPORTER,
-            hideFromPalette: true,
-            text: "V3: reflect [source] across line normal [normal]",
-            arguments: {
-              source: { type: Scratch.ArgumentType.STRING, defaultValue: "[2,3,0]" },
-              normal: { type: Scratch.ArgumentType.STRING, defaultValue: "[0,1,0]" },
             },
           },
           {
@@ -511,17 +489,6 @@
               source: { type: Scratch.ArgumentType.STRING, defaultValue: "[2,3]" },
               normal: { type: Scratch.ArgumentType.STRING, defaultValue: "[0,1]" },
               axis: { type: Scratch.ArgumentType.STRING, menu: "axisMenu3" },
-            },
-          },
-          {
-            disableMonitor: true,
-            hideFromPalette: true,
-            opcode: "reflectAcrossV2",
-            blockType: Scratch.BlockType.REPORTER,
-            text: "V2: reflect [source] across line normal [normal]",
-            arguments: {
-              source: { type: Scratch.ArgumentType.STRING, defaultValue: "[2,3]" },
-              normal: { type: Scratch.ArgumentType.STRING, defaultValue: "[0,1]" },
             },
           },
           {
@@ -1235,13 +1202,6 @@
       b = this.parse(b);
       if (a && b) {
         return this.stringify([a[0] * b[0], a[1] * b[1], a[2] * b[2]]);
-      }
-      return this.stringify([0, 0, 0]);
-    }
-    mulScalarV3({ a, b }) {
-      a = this.parse(a);
-      if (Array.isArray(a) && typeof b == "number") {
-        return this.stringify([a[0] * b, a[1] * b, a[2] * b]);
       }
       return this.stringify([0, 0, 0]);
     }

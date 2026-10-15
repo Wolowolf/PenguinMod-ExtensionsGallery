@@ -1609,13 +1609,6 @@ self.onmessage = ({ data: msg }) => {
             return false;
         }
 
-        spriteTouchingLight(args, util) {
-            const li = this.lights[Scratch.Cast.toString(args.LIGHT)];
-            if (!li) return false;
-            const target = this._resolveTarget(Scratch.Cast.toString(args.SPRITE), util);
-            if (!target) return false;
-            return this._checkTouchingLight(target, li, 100);
-        }
 
         spriteTouchingLightSensitivity(args, util) {
             const li = this.lights[Scratch.Cast.toString(args.LIGHT)];
@@ -2117,22 +2110,6 @@ self.onmessage = ({ data: msg }) => {
                             SPRITE: {
                                 type: Scratch.ArgumentType.STRING,
                                 menu: 'spriteMenu'
-                            }
-                        }
-                    },
-                    {
-                        opcode: 'spriteTouchingLight',
-                        blockType: Scratch.BlockType.BOOLEAN,
-                        hideFromPalette: true,
-                        text: '[SPRITE] touching light [LIGHT]?',
-                        arguments: {
-                            SPRITE: {
-                                type: Scratch.ArgumentType.STRING,
-                                menu: 'spriteMenu'
-                            },
-                            LIGHT: {
-                                type: Scratch.ArgumentType.STRING,
-                                defaultValue: 'light1'
                             }
                         }
                     },

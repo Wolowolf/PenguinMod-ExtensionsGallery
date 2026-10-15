@@ -93,29 +93,6 @@
           },
           // These 2 are Legacy Blocks for Support
           {
-            opcode: "playNote",
-            blockType: Scratch.BlockType.COMMAND,
-            text: "play [WAVE] note [NOTE] for [DURATION] seconds with ID [ID]",
-            hideFromPalette: true,
-            arguments: {
-              WAVE: { type: Scratch.ArgumentType.STRING, menu: "WAVES2" },
-              NOTE: { type: Scratch.ArgumentType.NOTE, defaultValue: 60 },
-              DURATION: { type: Scratch.ArgumentType.NUMBER, defaultValue: 0.5 },
-              ID: { type: Scratch.ArgumentType.STRING, defaultValue: 1 }
-            },
-          },
-          {
-            opcode: "playNoteContinuously",
-            blockType: Scratch.BlockType.COMMAND,
-            text: "play [WAVE] note [NOTE] continuously with ID [ID]",
-            hideFromPalette: true,
-            arguments: {
-              WAVE: { type: Scratch.ArgumentType.STRING, menu: "WAVES2" },
-              NOTE: { type: Scratch.ArgumentType.NOTE, defaultValue: 60 },
-              ID: { type: Scratch.ArgumentType.STRING, defaultValue: 1 }
-            },
-          },
-          {
             opcode: "stopID",
             blockType: Scratch.BlockType.COMMAND,
             text: "stop note with ID [ID]",

@@ -4378,9 +4378,6 @@ Enjoy!! :D
                     }),
                     currentWordIndex: () => ({
                         kind: 'input'
-                    }),
-                    currentWordValue: () => ({
-                        kind: 'input'
                     })
                 },
                 js: {
@@ -4428,9 +4425,6 @@ Enjoy!! :D
                     },
                     currentWordIndex: (node, compiler, imports) => {
                         return new imports.TypedInput('(thread && thread.stackFrames[0] && thread.stackFrames[0].irisWordNumber !== undefined ? thread.stackFrames[0].irisWordNumber : 0)', imports.TYPE_NUMBER);
-                    },
-                    currentWordValue: (node, compiler, imports) => {
-                        return new imports.TypedInput('(thread && thread.stackFrames[0] && thread.stackFrames[0].irisWordValue !== undefined ? thread.stackFrames[0].irisWordValue : "")', imports.TYPE_STRING);
                     }
                 }
             };
@@ -5102,13 +5096,6 @@ Enjoy!! :D
                         hideFromPalette: true
                     },
                     {
-                        opcode: 'currentWordValue',
-                        blockType: Scratch.BlockType.REPORTER,
-                        text: 'current word',
-                        canDragDuplicate: true,
-                        hideFromPalette: true
-                    },
-                    {
                         blockType: Scratch.BlockType.LABEL,
                         text: 'Character Transforms'
                     },
@@ -5272,41 +5259,6 @@ Enjoy!! :D
                         }
                     },
                     '---',
-                    {
-                        opcode: 'animateChar',
-                        blockType: Scratch.BlockType.COMMAND,
-                        text: 'animate character [INDEX] [PROPERTY] to [VALUE] over [SECS] secs easing [EASING] [DIRECTION]',
-                        hideFromPalette: true,
-                        arguments: {
-                            INDEX: {
-                                type: Scratch.ArgumentType.NUMBER,
-                                defaultValue: 1
-                            },
-                            PROPERTY: {
-                                type: Scratch.ArgumentType.STRING,
-                                menu: 'ANIMATE_PROPERTY',
-                                defaultValue: 'y'
-                            },
-                            VALUE: {
-                                type: Scratch.ArgumentType.NUMBER,
-                                defaultValue: 0
-                            },
-                            SECS: {
-                                type: Scratch.ArgumentType.NUMBER,
-                                defaultValue: 1
-                            },
-                            EASING: {
-                                type: Scratch.ArgumentType.STRING,
-                                menu: 'EASING',
-                                defaultValue: 'linear'
-                            },
-                            DIRECTION: {
-                                type: Scratch.ArgumentType.STRING,
-                                menu: 'EASING_DIRECTION',
-                                defaultValue: 'out'
-                            }
-                        }
-                    },
                     {
                         opcode: 'animateCharNew',
                         blockType: Scratch.BlockType.COMMAND,
@@ -6597,11 +6549,6 @@ Enjoy!! :D
             return (rootFrame && rootFrame.irisWordNumber !== undefined) ? rootFrame.irisWordNumber : 0;
         }
 
-        currentWordValue(args, util) {
-            const rootFrame = util.thread && util.thread.stackFrames[0];
-            return (rootFrame && rootFrame.irisWordValue !== undefined) ? rootFrame.irisWordValue : '';
-        }
-
         currentCharValue(args, util) {
             const cur = (util.thread && util.thread._irisChar) || util.target._irisTypingChar;
             return cur ? cur.char : '';
@@ -6730,50 +6677,6 @@ Enjoy!! :D
             o.scale = scale;
             state.charTransformsVersion++;
             schedulePaint(util.target, state);
-        }
-
-        animateChar(args, util) {
-            const target = util.target;
-            const state = getState(target);
-
-            const idx = Scratch.Cast.toNumber(args.INDEX) - 1;
-            const property = Scratch.Cast.toString(args.PROPERTY).toLowerCase();
-            const validProps = ['x', 'y', 'rotation', 'opacity', 'scale'];
-            if (!validProps.includes(property)) return;
-            let targetValue = Scratch.Cast.toNumber(args.VALUE);
-            if (property === 'opacity') targetValue = clampPercentToUnit(targetValue);
-            if (property === 'scale') targetValue = Math.max(0, targetValue) / 100;
-            const duration = Math.max(0, Scratch.Cast.toNumber(args.SECS));
-            const easingName = Scratch.Cast.toString(args.EASING).toLowerCase();
-            const easing = Object.prototype.hasOwnProperty.call(EasingMethods, easingName) ? easingName : 'linear';
-            const direction = Scratch.Cast.toString(args.DIRECTION).toLowerCase();
-            const o = getCharOverride(state, idx);
-
-            const key = target.id + '\u0001' + idx + '\u0001' + property;
-            if (duration <= 0) {
-                deleteCharAnimation(target.id, key);
-                o[property] = targetValue;
-                state.charTransformsVersion++;
-                schedulePaint(target, state);
-                startCharAnimationFinishedHat(target);
-                return;
-            }
-
-            const token = charAnimTokenSeq++;
-            addCharAnimation(target.id, key, {
-                target,
-                state,
-                index: idx,
-                property,
-                easing,
-                direction,
-                from: o[property] == null ? (property === 'scale' || property === 'opacity' ? 1 : 0) : o[property],
-                to: targetValue,
-                startTime: nowMs(),
-                duration: duration * 1000,
-                token
-            });
-            ensureAnimationTicker();
         }
 
         animateCharNew(args, util) {

@@ -300,34 +300,6 @@
                    text: 'reset all styles to default'
                 },
                 {
-                    opcode: 'showCustomNotification',
-                    blockType: BlockType.COMMAND,
-                    text: 'show notification [TYPE] with title [TITLE] message [MESSAGE] at [POSITION] with custom css [CSS]',
-                    hideFromPalette: true,
-                    arguments: {
-                        TYPE: {
-                            type: ArgumentType.STRING,
-                            menu: 'types'
-                        },
-                        TITLE: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'Title'
-                        },
-                        MESSAGE: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'Message'
-                        },
-                        POSITION: {
-                            type: ArgumentType.STRING,
-                            menu: 'positions'
-                        },
-                        CSS: {
-                            type: ArgumentType.STRING,
-                            defaultValue: ''
-                        }
-                    }
-                },
-                {
                     opcode: 'setSoundEnabled',
                     blockType: BlockType.COMMAND,
                     text: 'set notification sounds [ENABLED]',
@@ -337,87 +309,9 @@
                             menu: 'enabledMenu'
                         }
                     }
-                },
-                {
-                   opcode: 'showToast',
-                   blockType: BlockType.COMMAND,
-                   text: 'Show Toast with text [TEXT] with image [IMAGE] image rounded? [ROUNDED]',
-                   hideFromPalette: true,
-                   arguments: {
-                      TEXT: {
-                         type: ArgumentType.STRING,
-                         defaultValue: 'Toast!'
-                      },
-                      IMAGE: {
-                         type: ArgumentType.STRING,
-                         defaultValue: 'https://scratch.mit.edu/favicon.ico'
-                      },
-                      ROUNDED: {
-                         type: ArgumentType.STRING,
-                         menu: 'yesorno',
-                         defaultValue: 'no'
-                      }
-                   }
-                },
-                {
-                   opcode: 'showNotificationToast',
-                   blockType: BlockType.COMMAND,
-                   text: 'Show Notification Toast with text [TEXT] at position [POSITION] custom css? [STYLES]',
-                   hideFromPalette: true,
-                   arguments: {
-                      TEXT: {
-                         type: ArgumentType.STRING,
-                         defaultValue: 'Hello, World!'
-                      },
-                      POSITION: {
-                         type: ArgumentType.STRING,
-                         menu: 'position',
-                         defaultValue: 'up'
-                      },
-                      STYLES: {
-                         type: ArgumentType.STRING,
-                         defaultValue: ''
-                      }
-                   }
-                },
-                {
-                   opcode: 'showAlert',
-                   blockType: BlockType.COMMAND,
-                   text: 'Show Alert with text [TEXT] with duration of [DURATION] seconds',
-                   hideFromPalette: true,
-                   arguments: {
-                      TEXT: {
-                         type: ArgumentType.STRING,
-                         defaultValue: 'Hello!'
-                      },
-                      DURATION: {
-                         type: ArgumentType.STRING,
-                         defaultValue: '5'
-                      }
-                   }
-                },
-                {
-                    opcode: "setConfig",
-                    text: "Set config [CONFIG] to [VALUE]",
-                    blockType: BlockType.COMMAND,
-                    hideFromPalette: true,
-                    arguments: {
-                      CONFIG: {
-                        type: ArgumentType.STRING,
-                        defaultValue: "soundWhenAlertEnabled",
-                        menu: "configs",
-                      },
-                      VALUE: {
-                        type: ArgumentType.STRING,
-                        defaultValue: "true",
-                      },
-                    },
-                },
+                }
              ],
              menus: {
-                configs: [
-                    { text: "play sound when alert", value: "soundWhenAlertEnabled" },
-                ],
                 positions: {
                    acceptReporters: true,
                    items: [
@@ -530,16 +424,6 @@
           });
        }
 
-       showToast(args) {
-         this._createToast({
-            type: 'origin',
-            text: xmlEscape(Cast.toString(args.TEXT)),
-            image: xmlEscape(Cast.toString(args.IMAGE)),
-            imageRounded: Cast.toString(args.ROUNDED) === 'yes',
-            position: 'bottom-right'
-         });
-      }
- 
        showImageToast(args) {
           this._createToast({
              type: Cast.toString(args.TYPE),
@@ -635,48 +519,6 @@
        setSoundEnabled({ENABLED}) {
         toastConfig.soundWhenEnabled = Cast.toString(ENABLED);
        }
-   
-       showCustomNotification(args) {
-           this._createToast({
-               type: Cast.toString(args.TYPE),
-               title: xmlEscape(Cast.toString(args.TITLE)),
-               text: xmlEscape(Cast.toString(args.MESSAGE)),
-               position: Cast.toString(args.POSITION),
-               customCss: Cast.toString(args.CSS)
-           });
-       }
-
-       showAlert(args) {
-          const text = xmlEscape(Cast.toString(args.TEXT));
-          const duration = Cast.toNumber(args.DURATION);
-          
-          this._createToast({
-             type: 'origin',
-             text: text,
-             position: 'center-center',
-             duration: duration * 1000 // Convert to milliseconds
-          });
-       }
-
-       showNotificationToast(args) {
-          const position = {
-             'up': 'top-right',
-             'middle': 'center-right',
-             'down': 'bottom-right'
-          }[Cast.toString(args.POSITION)] || 'bottom-right';
-
-          this._createToast({
-             type: 'origin',
-             text: xmlEscape(Cast.toString(args.TEXT)),
-             position: position,
-             customCss: Cast.toString(args.STYLES)
-          });
-       }
-
-        setConfig(args) {
-          const configname = Cast.toString(args.CONFIG);
-          toastConfig[configname] = Cast.toString(args.VALUE);
-        }
     }
  
     Scratch.extensions.register(new ToastNotifications());

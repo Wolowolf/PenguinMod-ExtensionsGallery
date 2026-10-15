@@ -84,18 +84,6 @@ but has since deviated to be its own thing. (made with box2D js es6) */
 				menuIconURI: menuIconURI,
 				docsURI: this.docs,
 				blocks: [
-					{
-						opcode: 'get_debug',
-						hideFromPalette: !physdebugmode,
-						blockType: Scratch.BlockType.REPORTER,
-						text: 'Get debug [VAL]',
-						arguments: {
-							VAL: {
-								type: Scratch.ArgumentType.STRING,
-								defaultValue: "version",
-							},
-						},
-					},
 
 					{ blockType: Scratch.BlockType.LABEL, text: "Define objects" }, // ---- Define objects ---
 					{
@@ -191,18 +179,6 @@ but has since deviated to be its own thing. (made with box2D js es6) */
 							DIR: {
 								type: Scratch.ArgumentType.NUMBER,
 								defaultValue: 90,
-							},
-						},
-					},
-					{
-						opcode: 'ispoly',
-						hideFromPalette: !wipblocks,
-						blockType: Scratch.BlockType.BOOLEAN,
-						text: 'Is [POINTS] a polygon?',
-						arguments: {
-							POINTS: {
-								type: Scratch.ArgumentType.STRING,
-								defaultValue: "0 50   40 -50   -40 -50",
 							},
 						},
 					},
@@ -615,26 +591,6 @@ but has since deviated to be its own thing. (made with box2D js es6) */
 						},
 					},
 					{
-						opcode: 'setJointTarget',
-						blockType: Scratch.BlockType.COMMAND,
-						hideFromPalette: !wipblocks,
-						text: 'Move pin [JOINTID] to x: [X]  y: [Y]',
-						arguments: {
-							JOINTID: {
-								type: Scratch.ArgumentType.STRING,
-								defaultValue: 'Joint ID',
-							},
-							X: {
-								type: Scratch.ArgumentType.NUMBER,
-								defaultValue: 0,
-							},
-							Y: {
-								type: Scratch.ArgumentType.NUMBER,
-								defaultValue: 0,
-							},
-						},
-					},
-					{
 						opcode: 'getJointAttr',
 						blockType: Scratch.BlockType.REPORTER,
 						text: 'Get [JOINTATTRREAD] of joint: [JOINTID]',
@@ -833,30 +789,6 @@ but has since deviated to be its own thing. (made with box2D js es6) */
 						blockType: Scratch.BlockType.LABEL,  // ---- Legacy blocks (old and not recomended for use) ----
 						text: `Legacy blocks`
 					},
-					{
-						opcode: 'createNoCollideSet',
-						blockType: Scratch.BlockType.COMMAND,
-						text: 'Disable collision between [NAMES]',
-						hideFromPalette: !legacymode,
-						arguments: {
-							NAMES: {
-								type: Scratch.ArgumentType.STRING,
-								defaultValue: 'Object1 Object2',
-							},
-						},
-					},
-					{
-						opcode: 'createYesCollideSet',
-						blockType: Scratch.BlockType.COMMAND,
-						text: 'Reset collision of objects [NAMES]',
-						hideFromPalette: !legacymode,
-						arguments: {
-							NAMES: {
-								type: Scratch.ArgumentType.STRING,
-								defaultValue: 'Object1 Object2',
-							},
-						},
-					},
 
 
 					{
@@ -864,25 +796,7 @@ but has since deviated to be its own thing. (made with box2D js es6) */
 						blockType: Scratch.BlockType.LABEL, // --------------------- Debug blocks ----
 						text: "Debug blocks (can brake projects)"
 					}, // the ids on any of the following can change because these are used for debugging while making the extension (not for debugging projects), so it's YOUR fault if you use them and your project brakes
-					{
-						opcode: 'ignore',
-						hideFromPalette: !wipblocks && !physdebugmode,
-						blockType: Scratch.BlockType.COMMAND,
-						text: 'the ids on any of the following blocks can change or be removed, so it\'s YOUR fault if you use them and your project brakes',
-						arguments: {
-							VALUE: {
-								type: Scratch.ArgumentType.STRING,
-								defaultValue: "",
-							},
-						},
-					},
 
-					{
-						opcode: 'getImpacts',
-						blockType: Scratch.BlockType.REPORTER,
-						hideFromPalette: !physdebugmode,
-						text: 'Get all impacts',
-					},
 
 					{
 						hideFromPalette: !wipblocks,
@@ -912,28 +826,6 @@ but has since deviated to be its own thing. (made with box2D js es6) */
 		}
 
 		// this is not a commonly used fucntion, but it is nice to have.
-		get_debug(input) {
-			try { input = input.VAL } catch (error) { input = input; }
-			if (input == "version") {
-				return publishedUpdateIndex;
-			} else if (input == "lib") {
-				return "Box2D JS es6 (Uli Hecht's port of Box2D flash)";
-			} else if (input == "maker") {
-				return "pooiod7";
-			} else if (input == "base") {
-				return "Box2D Physics by griffpatch for ScratchX (Scratch 2.0)";
-			} else if (input == "docs") {
-				return this.docs;
-			} else if (input == "lastupdated") {
-				return b2Dupdated;
-			} else if (input == "fromPenguinMod") {
-				return this.isFromPenguinMod;
-			} else if (input == "origin") {
-				return this.origin;
-			} else {
-				return '["version", "lib", "maker", "base", "docs", "lastupdated", "fromPenguinMod", "origin"]';
-			}
-		}; ignore(){}
 
 		init(args) {
 			b2Math = Box2D.Common.Math.b2Math;
@@ -1233,30 +1125,6 @@ but has since deviated to be its own thing. (made with box2D js es6) */
 			});
 		}
 
-		ispoly(args) {
-			let tmpshape = new b2PolygonShape;
-			var points = args.POINTS;
-
-			try {
-				var pts = points.split(' ');
-				for (var i = 0; i < pts.length; i++) {
-					if (pts[i].length == 0) {
-						pts.splice(i, 1);
-						i--;
-					}
-				}
-
-				var vertices = [];
-				for (var i = pts.length; i > 0; i -= 2) {
-					if (isNaN(Number(pts[i - 2])) || isNaN(Number(pts[i - 1]))) return false;
-					vertices.push(new b2Vec2(parseFloat(pts[i - 2]) / b2Dzoom, parseFloat(pts[i - 1]) / b2Dzoom));
-				}
-				tmpshape.SetAsArray(vertices);
-				return true;
-			} catch (error) {
-				return false;
-			}
-		}
 
 		async definePoly(args) {
 			fixDef.shape = new b2PolygonShape;
@@ -1374,21 +1242,6 @@ but has since deviated to be its own thing. (made with box2D js es6) */
 
 		// Collision groups have been depricated for being too buggy
 		// These blocks just set the object layers now
-		createNoCollideSet({ NAMES }) {
-			noCollideSeq += 1;
-			NAMES = NAMES.toString().split(' ');
-			if (!NAMES.length) return '';
-			NAMES.forEach(NAME => {
-				this.setObjectLayer({ NAME: NAME, LAYERS: "1 -" + noCollideSeq });
-			});
-		}
-		createYesCollideSet({ NAMES }) {
-			NAMES = NAMES.toString().split(' ');
-			if (!NAMES.length) return '';
-			NAMES.forEach(NAME => {
-				this.setObjectLayer({ NAME: NAME, LAYERS: "1" });
-			});
-		}
 		
 		getobjects() {
 			var bodynames = [];
@@ -1563,9 +1416,6 @@ but has since deviated to be its own thing. (made with box2D js es6) */
 			return true;
 		};
 
-		getImpacts() {
-			return this.impacts.join(', ');
-		}
 
 		lastimpacts = []
 		whenImpactDetected({ NAME }) {
@@ -1794,12 +1644,6 @@ but has since deviated to be its own thing. (made with box2D js es6) */
 			}
 		}
 
-		setJointTarget(args) {
-			var joint = joints[args.JOINTID];
-			if (joint) {
-				joint.SetTarget(new b2Vec2(args.X / b2Dzoom, args.Y / b2Dzoom));
-			}
-		}
 
 		CreateMouseJoint(args) {
 			var jName = args.JOINTID;
