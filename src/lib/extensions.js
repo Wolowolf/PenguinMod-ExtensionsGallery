@@ -213,13 +213,6 @@ export default [
         isGitHub: false,
     },
     {
-        name: "WindowHasher",
-        description: "Interact with URL hash: the part of the URL after a hashtag",
-        code: "pooiod/WindowHasher.js",
-        banner: "pooiod/WindowHasher.avif",
-        creator: "pooiod7",
-    },
-    {
         name: "Google Auth",
         description: "Login with Google to your projects. Allows getting a name, profile picture and email from the google account.",
         code: "Ikelene/googleAuthExtension.js",
@@ -255,14 +248,6 @@ export default [
         creator: "gaimerI",
         creatorAlias: "gaimerI17",
         isGitHub: true,
-    },
-    {
-        name: "Twitch",
-        description: "Communicate with your Twitch Chat on PenguinMod!\n\nPenguinMod is not affiliated with Twitch.",
-        code: "bop_tw/Twitch.js",
-        banner: "bop_tw/Twitch.avif",
-        creator: "bop_tw",
-        isGitHub: false,
     },
     {
         name: "MIDI Controller",
