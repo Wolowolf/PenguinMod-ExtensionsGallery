@@ -173,7 +173,8 @@ export default [
     },
     {
         name: "Google Auth",
-        description: "Login with Google to your projects. Allows getting a name, profile picture and email from the google account.",
+        description: "Let players log in with Google through your own Google client IDs. Gets name, picture, ID and (if you ask) email; shows your privacy policy first.",
+        documentation: "Game-Login",
         code: "Ikelene/googleAuthExtension.js",
         banner: "Ikelene/ExtensionBanner.avif",
         creator: "ikelene",
@@ -182,7 +183,8 @@ export default [
     },
     {
         name: "Discord Auth",
-        description: "Login with discord to your projects. Identify users by ID and username in a secure and easy way!",
+        description: "Let players log in with Discord through your own Discord app. Gets username, display name, ID, avatar and (if you ask) email; shows your privacy policy first.",
+        documentation: "Game-Login",
         code: "NotHouse/DiscordAuth.js",
         banner: "NotHouse/DiscordAuth-banner.avif",
         creator: "enderhacker",

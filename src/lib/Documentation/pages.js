@@ -25,6 +25,9 @@ import BoxedPhysics from "./BoxedPhysics.md?raw";
 // Resolution
 import Resolution from "./Resolution.md?raw";
 
+// Google Auth and Discord Auth
+import GameLogin from "./Game-Login.md?raw";
+
 // Date Format V2
 
 
@@ -35,6 +38,7 @@ export default {
     // you cant use / like "sharkpool/particle-tools" yet
     "particle-tools": PageParticleTools,
     "Extra-Control": PageExtraControl,
+    "Game-Login": GameLogin,
 
 
 
