@@ -127,7 +127,7 @@ export default [
     },
     {
         name: "Random Utilities",
-        description: "Many blocks related to generating random values. Includes seed-based number generation, UUIDs, random strings, etc.",
+        description: "Many blocks related to generating random values. Includes seed-based number generation, random strings, etc.",
         code: "Gen1x/random_utils.js",
         banner: "Gen1x/randomutils.avif",
         isGitHub: true,

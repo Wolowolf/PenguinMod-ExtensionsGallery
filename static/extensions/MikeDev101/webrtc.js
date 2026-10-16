@@ -48,16 +48,10 @@ TODO 3: Audio panning support https://developer.mozilla.org/en-US/docs/Web/API/S
             constructor() {
                 this.configuration = {
     
-                    // Public STUN/TURN servers.
-                    iceServers: [
-                        { urls: 'stun:vpn.mikedev101.cc:3478' },
-                        { urls: 'turn:vpn.mikedev101.cc:3478', username: "free", credential: "free" },
-                        { urls: 'stun:stun.l.google.com:19302' },
-                        { urls: 'stun:freeturn.net:3478' },
-                        { urls: 'stun:freeturn.net:5349' },
-                        { urls: 'turn:freeturn.net:3478', username: "free", credential: "free" },
-                        { urls: 'turns:freeturn.net:5349', username: "free", credential: "free" },
-                    ],
+                    // STUN/TURN servers: none built in. The project adds its own with the
+                    // "add STUN/TURN server" block; without any, peers on the same local
+                    // network can still connect.
+                    iceServers: [],
     
                     // Set to 'relay' if you want to only use TURN.
                     iceTransportPolicy: 'all',
@@ -529,6 +523,36 @@ TODO 3: Audio panning support https://developer.mozilla.org/en-US/docs/Web/API/S
                     docsURI: "https://github.com/cloudlink-omega/scratch3-webrtc",
                     blocks: [
                         {
+                            opcode: 'addIceServer',
+                            blockType: Scratch2.BlockType.COMMAND,
+                            arguments: {
+                                url: {
+                                    type: Scratch2.ArgumentType.STRING,
+                                    defaultValue: "stun:example.com:3478",
+                                },
+                                username: {
+                                    type: Scratch2.ArgumentType.STRING,
+                                    defaultValue: "",
+                                },
+                                password: {
+                                    type: Scratch2.ArgumentType.STRING,
+                                    defaultValue: "",
+                                }
+                            },
+                            text: 'Add STUN/TURN server [url] username [username] password [password]'
+                        },
+                        {
+                            opcode: 'clearIceServers',
+                            blockType: Scratch2.BlockType.COMMAND,
+                            text: 'Remove all STUN/TURN servers'
+                        },
+                        {
+                            opcode: 'iceServers',
+                            blockType: Scratch2.BlockType.REPORTER,
+                            text: 'STUN/TURN servers'
+                        },
+                        "---",
+                        {
                             opcode: 'allPeers',
                             blockType: Scratch2.BlockType.REPORTER,
                             text: 'All peer connection objects'
@@ -782,6 +806,29 @@ TODO 3: Audio panning support https://developer.mozilla.org/en-US/docs/Web/API/S
 
             allConnectedPeers(){
                 return JSON.stringify(this.webrtc.getConnectedPeers());
+            }
+
+            // Servers apply to peer connections created afterwards.
+            addIceServer(args) {
+                const url = Scratch2.Cast.toString(args.url).trim();
+                if (!/^(stun|stuns|turn|turns):/i.test(url)) return;
+                const server = { urls: url };
+                const username = Scratch2.Cast.toString(args.username);
+                const password = Scratch2.Cast.toString(args.password);
+                if (username || password) {
+                    server.username = username;
+                    server.credential = password;
+                }
+                this.webrtc.configuration.iceServers.push(server);
+            }
+
+            clearIceServers() {
+                this.webrtc.configuration.iceServers = [];
+            }
+
+            // Addresses only, never the passwords.
+            iceServers() {
+                return JSON.stringify(this.webrtc.configuration.iceServers.map(server => server.urls));
             }
     
             newPeer(args) {
