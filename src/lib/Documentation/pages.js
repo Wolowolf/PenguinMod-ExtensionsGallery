@@ -8,8 +8,6 @@ import PageParticleTools from "./particle-tools.md?raw";
 // Extra Control (unlisted)
 import PageExtraControl from "./Extra-Control.md?raw";
 
-// TurboWeather
-import PageTurboWeather from "./TurboWeather.md?raw";
 
 // Number Utilities
 import PageNumberUtilities from "./NumberUtilities.md?raw";
@@ -18,8 +16,6 @@ import PageNumberUtilities from "./NumberUtilities.md?raw";
 import PagePenguinAI from "./PenguinAI.md?raw";
 
 
-// YeetYourFiles
-import PageYeetYourFiles from "./YeetYourFiles.md?raw";
 
 
 // Boxed Physics
@@ -41,8 +37,6 @@ export default {
     "Extra-Control": PageExtraControl,
 
 
-    //TurboWeather
-    "TurboWeather": PageTurboWeather,
 
     // Number Utilities
     "NumberUtilities": PageNumberUtilities,
@@ -51,8 +45,6 @@ export default {
     "PenguinAI": PagePenguinAI,
 
 
-    // YeetYourFiles
-    "YeetYourFiles": PageYeetYourFiles,
 
 
     // Boxed Physics

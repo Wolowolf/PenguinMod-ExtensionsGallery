@@ -80,9 +80,9 @@ class RandomUtils {
       color3: '#782722',
       blocks: [
         {
-          opcode: 'truerndnumber',
+          opcode: 'seedednumber',
           blockType: Scratch.BlockType.REPORTER,
-          text: '[RND] number between [MIN] and [MAX]',
+          text: 'seeded random number between [MIN] and [MAX]',
           arguments: {
             MIN: {
               type: Scratch.ArgumentType.NUMBER,
@@ -91,10 +91,6 @@ class RandomUtils {
             MAX: {
               type: Scratch.ArgumentType.NUMBER,
               defaultValue: 100
-            },
-            RND: {
-              type: Scratch.ArgumentType.STRING,
-              menu: 'RND_MENU'
             }
           }
         },
@@ -211,10 +207,6 @@ class RandomUtils {
         },
       ],
       menus: {
-        RND_MENU: {
-          acceptReporters: false,
-          items: ['true random', 'seeded random']
-        },
         COLOR_MENU: {
           acceptReporters: false,
           items: ['hex', 'RGB']
@@ -227,19 +219,8 @@ class RandomUtils {
     };
   }
 
-  truerndnumber(args) {
-   if (args.RND == "true random") {
-    return fetch(`https://www.random.org/integers/?num=1&min=${args.MIN}&max=${args.MAX}&col=1&base=10&format=plain&rnd=new`)
-    .then((response) => {
-      return response.text();
-    })
-    .catch((error) => {
-      console.error(error);
-      return 'Infinity';
-    });
-   } else {
-     return seededRandom(seed, args.MIN, args.MAX);
-   }
+  seedednumber(args) {
+    return seededRandom(seed, args.MIN, args.MAX);
   }
 
   uuid(args) {
