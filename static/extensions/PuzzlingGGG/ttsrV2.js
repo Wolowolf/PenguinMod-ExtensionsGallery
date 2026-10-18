@@ -1,14 +1,18 @@
 // name: Text To Speech
 // id: pmTextToSpeech
-// description: Offline text to speech with Pocket TTS voices, voice cloning, speed and pitch.
+// description: Offline text to speech with Pocket TTS and Supertonic 3 voices, voice cloning, speed and pitch; makes speech sounds too.
 // license: MIT AND Apache-2.0
 //
 // Speech is made on this computer with Pocket TTS by Kyutai (https://huggingface.co/kyutai/pocket-tts,
 // CC BY 4.0) in its ONNX export by KevinAHM (https://huggingface.co/KevinAHM/pocket-tts-onnx, CC BY 4.0),
-// run by onnxruntime-web (MIT). The generation steps follow KevinAHM's Pocket TTS web demo
+// or with Supertonic 3 by Supertone Inc. (https://huggingface.co/Supertone/supertonic-3, OpenRAIL-M:
+// its use restrictions apply to everyone who uses it, and its speech must be disclosed as
+// machine-generated), run by onnxruntime-web (MIT). The Pocket TTS steps follow KevinAHM's web demo
 // (https://huggingface.co/spaces/KevinAHM/pocket-tts-web, inference-worker.js, Apache-2.0,
 // http://www.apache.org/licenses/LICENSE-2.0), rewritten for this extension: no streaming, own
-// SentencePiece tokenizer, voices encoded from their clips, speed and pitch added.
+// SentencePiece tokenizer, voices encoded from their clips, speed and pitch added. The Supertonic
+// steps and text clean-up follow Supertone's web example (https://github.com/supertone-inc/supertonic,
+// web/helper.js, MIT, Copyright (c) 2025 Supertone Inc.), rewritten with typed arrays.
 // The files come from the app (https://studio.penguinmod.com/__speech__/), which downloads each
 // pack once; nothing is sent anywhere.
 (function (Scratch) {
@@ -20,7 +24,22 @@
     const ID = "pmTextToSpeech";
     const BASE = globalThis.pmSpeechBase || "https://studio.penguinmod.com/__speech__/";
 
-    const LANGUAGES = ["english", "french", "german", "italian", "portuguese", "spanish"];
+    // Supertonic speaks all of these; Pocket TTS only POCKET_LANGUAGES (other languages: english)
+    const LANGUAGES = {
+        english: "en", arabic: "ar", bulgarian: "bg", croatian: "hr", czech: "cs", danish: "da", dutch: "nl",
+        estonian: "et", finnish: "fi", french: "fr", german: "de", greek: "el", hindi: "hi", hungarian: "hu",
+        indonesian: "id", italian: "it", japanese: "ja", korean: "ko", latvian: "lv", lithuanian: "lt", polish: "pl",
+        portuguese: "pt", romanian: "ro", russian: "ru", slovak: "sk", slovenian: "sl", spanish: "es", swedish: "sv",
+        turkish: "tr", ukrainian: "uk", vietnamese: "vi",
+    };
+    const POCKET_LANGUAGES = ["english", "french", "german", "italian", "portuguese", "spanish"];
+    // Supertonic's preset voices (part of the model, same licence)
+    const SUPERTONIC_VOICES = {};
+    for (let i = 1; i <= 5; i++) SUPERTONIC_VOICES[`supertonic female ${i}`] = `F${i}`;
+    for (let i = 1; i <= 5; i++) SUPERTONIC_VOICES[`supertonic male ${i}`] = `M${i}`;
+    const SUPERTONIC_CREDIT = { title: "Supertonic 3 (the speech is machine-generated)", by: "Supertone Inc.",
+        url: "https://huggingface.co/Supertone/supertonic-3", license: "OpenRAIL-M",
+        licenseUrl: "https://huggingface.co/Supertone/supertonic-3/blob/main/LICENSE", needsCredit: true };
     const CC_BY = { license: "CC BY 4.0", licenseUrl: "https://creativecommons.org/licenses/by/4.0/" };
     const VCTK = (speaker) => Object.assign({ title: `VCTK speaker ${speaker}`, by: "CSTR, University of Edinburgh",
         url: "https://datashare.ed.ac.uk/handle/10283/3443", modified: true, needsCredit: true }, CC_BY);
@@ -197,13 +216,17 @@
             return { encode, decode };
         }
 
-        async function loadLanguage(name) {
-            if (lang && lang.name === name) return lang;
+        async function loadOrt() {
             if (!ort) {
                 ort = await import(base + "onnxruntime/ort.wasm.bundle.min.mjs");
                 ort.env.wasm.wasmPaths = { wasm: base + "onnxruntime/ort-wasm-simd-threaded.wasm" };
                 ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(navigator.hardwareConcurrency || 4, 4) : 1;
             }
+        }
+
+        async function loadLanguage(name) {
+            if (lang && lang.name === name) return lang;
+            await loadOrt();
             if (lang) await Promise.all(Object.values(lang.sessions).map((s) => s.release()));
             lang = null;
             const dir = `${base}pocket-${name}/`;
@@ -325,6 +348,105 @@
             return audio;
         }
 
+        // Supertonic 3: one model for every language; duration predictor, text encoder, a few
+        // denoising steps of the vector estimator, vocoder (44.1 kHz)
+        const ST_STEPS = 8;
+        let supertonic = null; // {cfg, indexer, sessions, voices: Map}
+        async function loadSupertonic() {
+            if (supertonic) return supertonic;
+            await loadOrt();
+            const dir = `${base}supertonic/`;
+            const json = async (file) => JSON.parse(new TextDecoder().decode(await fetchBuffer(dir + file)));
+            const cfg = await json("tts.json");
+            const indexer = await json("unicode_indexer.json");
+            const sessions = {};
+            for (const key of ["duration_predictor", "text_encoder", "vector_estimator", "vocoder"]) {
+                sessions[key] = await ort.InferenceSession.create(dir + key + ".onnx", { executionProviders: ["wasm"], graphOptimizationLevel: "all" });
+            }
+            supertonic = { cfg, indexer, sessions, voices: new Map() };
+            return supertonic;
+        }
+        async function supertonicVoice(st, name) {
+            if (st.voices.has(name)) return st.voices.get(name);
+            const style = JSON.parse(new TextDecoder().decode(await fetchBuffer(`${base}supertonic/${name}.json`)));
+            const make = (entry) => tensor("float32", Float32Array.from(entry.data.flat(Infinity)), entry.dims);
+            const voice = { ttl: make(style.style_ttl), dp: make(style.style_dp) };
+            st.voices.set(name, voice);
+            return voice;
+        }
+        function supertonicText(text, code) {
+            text = text.normalize("NFKD")
+                .replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F700}-\u{1F77F}\u{1F780}-\u{1F7FF}\u{1F800}-\u{1F8FF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}]+/gu, "");
+            const replacements = [["–", "-"], ["‑", "-"], ["—", "-"], ["_", " "], ["“", '"'], ["”", '"'], ["‘", "'"],
+                ["’", "'"], ["´", "'"], ["`", "'"], ["[", " "], ["]", " "], ["|", " "], ["/", " "], ["#", " "], ["→", " "], ["←", " "],
+                ["@", " at "], ["e.g.,", "for example, "], ["i.e.,", "that is, "]];
+            for (const [from, to] of replacements) text = text.split(from).join(to);
+            text = text.replace(/[♥☆♡©\\]/g, "").replace(/ ([,.!?;:'])/g, "$1").replace(/""+/g, '"').replace(/''+/g, "'")
+                .replace(/\s+/g, " ").trim();
+            if (!/[.!?;:,'"')\]}…。」』】〉》›»]$/.test(text)) text += ".";
+            return `<${code}>${text}</${code}>`;
+        }
+        function supertonicChunks(text, code) {
+            const max = code === "ko" || code === "ja" ? 120 : 300;
+            const chunks = [];
+            for (const paragraph of text.trim().split(/\n\s*\n+/).map((p) => p.trim()).filter(Boolean)) {
+                let current = "";
+                for (const sentence of paragraph.split(/(?<!Mr\.|Mrs\.|Ms\.|Dr\.|Prof\.|Sr\.|Jr\.|Ph\.D\.|etc\.|e\.g\.|i\.e\.|vs\.|Inc\.|Ltd\.|Co\.|Corp\.|St\.|Ave\.|Blvd\.)(?<!\b[A-Z]\.)(?<=[.!?])\s+/)) {
+                    if (current.length + sentence.length + 1 <= max) current += (current ? " " : "") + sentence;
+                    else {
+                        if (current) chunks.push(current.trim());
+                        current = sentence;
+                    }
+                }
+                if (current) chunks.push(current.trim());
+            }
+            return chunks;
+        }
+        async function supertonicGenerate(st, voice, text, code, speed, id) {
+            const rate = st.cfg.ae.sample_rate, chunkSize = st.cfg.ae.base_chunk_size * st.cfg.ttl.chunk_compress_factor;
+            const latentDim = st.cfg.ttl.latent_dim * st.cfg.ttl.chunk_compress_factor;
+            const parts = [];
+            const chunks = supertonicChunks(text, code);
+            for (let c = 0; c < chunks.length; c++) {
+                const prepared = supertonicText(chunks[c], code);
+                const ids = new BigInt64Array(prepared.length);
+                for (let i = 0; i < prepared.length; i++) {
+                    const point = prepared.codePointAt(i);
+                    ids[i] = BigInt(point < st.indexer.length ? st.indexer[point] : -1);
+                }
+                const textIds = tensor("int64", ids, [1, ids.length]);
+                const textMask = tensor("float32", new Float32Array(ids.length).fill(1), [1, 1, ids.length]);
+                const s = st.sessions;
+                const duration = (await s.duration_predictor.run({ text_ids: textIds, style_dp: voice.dp, text_mask: textMask })).duration.data[0] / speed;
+                const textEmb = (await s.text_encoder.run({ text_ids: textIds, style_ttl: voice.ttl, text_mask: textMask })).text_emb;
+                const wavLength = Math.floor(duration * rate);
+                const latentLength = Math.max(1, Math.floor((wavLength + chunkSize - 1) / chunkSize));
+                let xt = new Float32Array(latentDim * latentLength);
+                for (let i = 0; i < xt.length; i++) {
+                    const u = Math.max(0.0001, Math.random()), v = Math.random();
+                    xt[i] = Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+                }
+                const latentMask = tensor("float32", new Float32Array(latentLength).fill(1), [1, 1, latentLength]);
+                const total = tensor("float32", new Float32Array([ST_STEPS]), [1]);
+                for (let step = 0; step < ST_STEPS; step++) {
+                    if (cancelled.has(id)) throw new Cancelled();
+                    const out = await s.vector_estimator.run({
+                        noisy_latent: tensor("float32", xt, [1, latentDim, latentLength]), text_emb: textEmb, style_ttl: voice.ttl,
+                        latent_mask: latentMask, text_mask: textMask, current_step: tensor("float32", new Float32Array([step]), [1]), total_step: total,
+                    });
+                    xt = new Float32Array(out.denoised_latent.data);
+                }
+                if (cancelled.has(id)) throw new Cancelled();
+                const wav = (await s.vocoder.run({ latent: tensor("float32", xt, [1, latentDim, latentLength]) })).wav_tts.data;
+                parts.push(new Float32Array(wav.subarray(0, Math.min(wav.length, wavLength))));
+                if (c < chunks.length - 1) parts.push(new Float32Array(Math.floor(0.3 * rate)));
+            }
+            const audio = new Float32Array(parts.reduce((n, p) => n + p.length, 0));
+            let offset = 0;
+            for (const p of parts) { audio.set(p, offset); offset += p.length; }
+            return audio;
+        }
+
         // Speed and pitch: stretch the time (WSOLA), then resample by the pitch ratio
         function stretch(x, factor) {
             if (Math.abs(factor - 1) < 0.001 || x.length < 2048) return x;
@@ -374,18 +496,24 @@
                 return {};
             }
             if (type === "speak") {
-                const key = `${data.language}|${data.voiceKey}|${data.text}`;
+                const pitch = data.pitch / 100, speed = data.speed / 100;
+                // Supertonic sets the speed itself (shorter durations); Pocket TTS gets it by time stretching
+                const st = data.engine === "supertonic";
+                const key = st ? `supertonic|${data.language}|${data.voiceKey}|${data.speed}|${data.text}` : `${data.language}|${data.voiceKey}|${data.text}`;
                 let audio = cache.get(key);
                 if (audio) cache.delete(key);
-                else {
+                else if (st) {
+                    const model = await loadSupertonic();
+                    audio = { samples: await supertonicGenerate(model, await supertonicVoice(model, data.voiceKey), data.text, data.language, 1.05 * speed, id),
+                        rate: model.cfg.ae.sample_rate };
+                } else {
                     const l = await loadLanguage(data.language);
-                    audio = await generate(l, await voiceState(l, data.voiceKey, data.voiceAudio), data.text, id);
+                    audio = { samples: await generate(l, await voiceState(l, data.voiceKey, data.voiceAudio), data.text, id), rate: l.meta.sample_rate };
                 }
                 cache.set(key, audio);
                 while (cache.size > 40) cache.delete(cache.keys().next().value);
-                const pitch = data.pitch / 100, speed = data.speed / 100;
-                const result = new Float32Array(resample(stretch(audio, pitch / speed), pitch));
-                return { result, sampleRate: lang ? lang.meta.sample_rate : 24000 };
+                const result = new Float32Array(resample(stretch(audio.samples, st ? pitch : pitch / speed), pitch));
+                return { result, sampleRate: audio.rate };
             }
             throw new Error(`unknown request ${type}`);
         }
@@ -437,12 +565,13 @@
         if (worker && id) worker.postMessage({ type: "cancel", data: { id } });
     };
 
-    // The packs a language needs; the app offers to download missing ones. A packaged game sets
-    // pmSpeechBase: it has no installer, the packager put the files next to it.
+    // The packs a request needs (packsFor); the app offers to download missing ones. A packaged
+    // game sets pmSpeechBase: it has no installer, the packager put the files next to it.
+    const packsFor = (request) => (request.engine === "supertonic" ? ["onnxruntime", "supertonic"]
+        : ["onnxruntime", "pocket-voices", `pocket-${request.language}`]);
     const packRequests = new Map();
-    const ensurePacks = (language) => {
+    const ensurePacks = (packs) => {
         if (globalThis.pmSpeechBase) return Promise.resolve(true);
-        const packs = ["onnxruntime", "pocket-voices", `pocket-${language}`];
         const key = packs.join(",");
         if (!packRequests.has(key)) {
             packRequests.set(key, fetch(`${BASE}install?packs=${key}`).then(async (res) => {
@@ -487,6 +616,18 @@
         return new Uint8Array(buffer);
     };
 
+    // What the worker needs for a voice: the engine, its language code and voice
+    let warnedLanguage = false;
+    function requestFor(voice, language) {
+        if (SUPERTONIC_VOICES[voice.name]) return { engine: "supertonic", language: LANGUAGES[language], voiceKey: SUPERTONIC_VOICES[voice.name] };
+        if (!POCKET_LANGUAGES.includes(language)) {
+            if (!warnedLanguage) console.warn(`Text To Speech: Pocket TTS voices don't speak ${language}, they speak english; Supertonic voices speak it.`);
+            warnedLanguage = true;
+            language = "english";
+        }
+        return { engine: "pocket", language };
+    }
+
     const cloneAudio = new Map(); // sound asset id -> Float32Array (24 kHz mono, at most 10 s)
     async function voiceFor(target, state) {
         if (!state.voice.sound) return { voiceKey: state.voice.name };
@@ -524,12 +665,13 @@
         if (!text.trim() || !runtime.audioEngine) return;
         state.speaking = true;
         try {
-            if (!(await ensurePacks(state.language)) || state.job !== job) return;
+            const engine = requestFor(state.voice, state.language);
+            if (!(await ensurePacks(packsFor(engine))) || state.job !== job) return;
             let result;
             try {
-                const voice = await voiceFor(target, state);
+                const voice = engine.engine === "supertonic" ? {} : await voiceFor(target, state);
                 if (state.job !== job) return;
-                const request = call("speak", Object.assign({ language: state.language, text, speed: state.speed, pitch: state.pitch }, voice),
+                const request = call("speak", Object.assign({ text, speed: state.speed, pitch: state.pitch }, engine, voice),
                     voice.voiceAudio ? [voice.voiceAudio.buffer] : []);
                 state.request = request.id;
                 result = await request.promise;
@@ -569,8 +711,9 @@
     // ------------------------------------------------------------------------------------------
     // Credits: the engine and the CC BY voices the project's blocks use (the app's credit sprite)
     // ------------------------------------------------------------------------------------------
+    const pocketVoiceCredit = (v) => Object.assign({}, VOICES[v], { title: `${VOICES[v].title} (voice ${v})` });
     const usedCredits = () => {
-        let used = false;
+        let used = false, supertonicUsed = false;
         const voices = new Set(["alba"]); // the default voice
         for (const target of runtime.targets) {
             if (!target.isOriginal) continue;
@@ -582,12 +725,16 @@
                 const input = block.inputs.VOICE && blocks[block.inputs.VOICE.block];
                 const field = input && input.fields && input.fields.voices;
                 if (field && VOICES[field.value] !== undefined) voices.add(field.value);
-                else Object.keys(VOICES).forEach((v) => voices.add(v)); // chosen by a reporter
+                else if (field && SUPERTONIC_VOICES[field.value]) supertonicUsed = true;
+                else { // chosen by a reporter
+                    Object.keys(VOICES).forEach((v) => voices.add(v));
+                    supertonicUsed = true;
+                }
             }
         }
         if (!used) return [];
-        return ENGINE_CREDITS.concat(Array.from(voices).filter((v) => VOICES[v])
-            .map((v) => Object.assign({}, VOICES[v], { title: `${VOICES[v].title} (voice ${v})` })));
+        return ENGINE_CREDITS.concat(supertonicUsed ? [SUPERTONIC_CREDIT] : [],
+            Array.from(voices).filter((v) => VOICES[v]).map(pocketVoiceCredit));
     };
     runtime.pmCreditProviders = (runtime.pmCreditProviders || []).filter((p) => p.id !== ID);
     const provider = () => usedCredits();
@@ -607,6 +754,140 @@
     runtime.on("PROJECT_CHANGED", scheduleCredits);
     runtime.on("PROJECT_LOADED", scheduleCredits);
     scheduleCredits();
+
+    // ------------------------------------------------------------------------------------------
+    // "Make a speech sound": makes speech once in the editor and adds it to the sprite as a sound
+    // carrying its credits (the credit sprite lists them); the game then needs no speech files.
+    // ------------------------------------------------------------------------------------------
+    const soundCredit = (voice, target) => {
+        if (SUPERTONIC_VOICES[voice.name]) return Object.assign({ v: 1 }, SUPERTONIC_CREDIT);
+        const extra = [ENGINE_CREDITS[1]];
+        if (voice.sound) {
+            const sound = target.getSounds().find((s) => s.name === voice.sound);
+            if (sound && sound.pmCredit) extra.push(...[sound.pmCredit].concat(sound.pmCredit.extra || []).map((c) => Object.assign({}, c, { extra: undefined })));
+        } else if (VOICES[voice.name]) {
+            const credit = pocketVoiceCredit(voice.name);
+            extra.push(Object.assign(credit, { title: `${credit.title}, clip resampled and cut` }));
+        }
+        return Object.assign({ v: 1 }, ENGINE_CREDITS[0], { extra });
+    };
+    let recorder = null;
+    function openRecorder() {
+        if (recorder) return;
+        const target = vm.editingTarget || runtime.getTargetForStage();
+        if (!target) return;
+        const el = (tag, style, props) => Object.assign(document.createElement(tag), props || {}, style ? { style: style } : {});
+        const field = "display:block;width:100%;box-sizing:border-box;margin:4px 0 10px;padding:6px;font:inherit;color:#333;background:white;border:1px solid #c4c4c4;border-radius:4px;";
+        const button = "padding:8px 14px;font:inherit;font-weight:bold;border:none;border-radius:4px;cursor:pointer;color:white;background:#4c6ef5;margin-left:8px;";
+        const overlay = el("div", "position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;font-family:Helvetica,Arial,sans-serif;font-size:14px;");
+        const box = el("div", "background:white;color:#333;border-radius:8px;padding:18px 20px;width:440px;max-width:calc(100vw - 32px);max-height:calc(100vh - 32px);overflow:auto;box-shadow:0 8px 30px rgba(0,0,0,0.35);");
+        box.append(el("div", "font-size:18px;font-weight:bold;margin-bottom:10px;", { textContent: "Make a speech sound" }));
+        const label = (text) => el("label", "font-weight:bold;", { textContent: text });
+        const text = el("textarea", field + "height:80px;resize:vertical;", { value: "Hello!", maxLength: 2000 });
+        const voice = el("select", field);
+        const group = (name, entries) => {
+            const g = el("optgroup", null, { label: name });
+            for (const [value, shown] of entries) g.append(el("option", null, { value, textContent: shown }));
+            voice.append(g);
+        };
+        group("Pocket TTS", Object.keys(VOICES).map((v) => [`voice:${v}`, v]));
+        group("Supertonic 3", Object.keys(SUPERTONIC_VOICES).map((v) => [`voice:${v}`, v]));
+        const sounds = target.getSounds().map((s) => s.name);
+        if (sounds.length) group("Pocket TTS, clone of a sound of this sprite (only voices you have permission to use)", sounds.map((s) => [`sound:${s}`, `clone of ${s}`]));
+        const language = el("select", field);
+        const pick = (entries, value) => {
+            const select = el("select", field);
+            for (const v of entries) select.append(el("option", null, { value: v, textContent: v }));
+            select.value = value;
+            return select;
+        };
+        const speed = pick(Object.keys(SPEEDS), "normal"), pitch = pick(Object.keys(PITCHES), "normal");
+        const name = el("input", field, { value: "speech", maxLength: 80 });
+        const note = el("div", "font-size:12px;color:#666;margin-bottom:10px;");
+        const status = el("div", "min-height:18px;margin-bottom:10px;color:#4c6ef5;");
+        const chosenVoice = () => (voice.value.startsWith("sound:") ? { sound: voice.value.slice(6) } : { name: voice.value.slice(6) });
+        const fillLanguages = () => {
+            const st = !!SUPERTONIC_VOICES[chosenVoice().name];
+            const keep = language.value || "english";
+            language.textContent = "";
+            for (const l of st ? Object.keys(LANGUAGES) : POCKET_LANGUAGES) language.append(el("option", null, { value: l, textContent: l }));
+            language.value = (st ? LANGUAGES[keep] : POCKET_LANGUAGES.includes(keep)) ? keep : "english";
+            note.textContent = st ? "Supertonic 3 (OpenRAIL-M): the credit says the speech is machine-generated; keep that in your game's credits."
+                : "Pocket TTS (CC BY 4.0): the sound's credits go into the credit sprite.";
+        };
+        voice.value = `voice:${stateOf(target).voice.name && (VOICES[stateOf(target).voice.name] !== undefined || SUPERTONIC_VOICES[stateOf(target).voice.name]) ? stateOf(target).voice.name : "alba"}`;
+        voice.onchange = fillLanguages;
+        fillLanguages();
+        box.append(label("Text"), text, label("Voice"), voice, label("Language"), language);
+        const row = el("div", "display:flex;gap:12px;");
+        const half = (title, input) => { const d = el("div", "flex:1;"); d.append(label(title), input); return d; };
+        row.append(half("Speed", speed), half("Pitch", pitch));
+        box.append(row, label("Sound name"), name, note, status);
+        const buttons = el("div", "text-align:right;");
+        const close = el("button", button + "background:#868e96;", { textContent: "Close" });
+        const preview = el("button", button, { textContent: "Preview" });
+        const add = el("button", button, { textContent: "Add to sprite" });
+        buttons.append(close, preview, add);
+        box.append(buttons);
+        overlay.append(box);
+        document.body.append(overlay);
+        text.focus();
+
+        let request = 0, audio = null, last = null;
+        const busy = (on) => { preview.disabled = add.disabled = on; preview.style.opacity = add.style.opacity = on ? "0.5" : "1"; };
+        const make = async () => {
+            const chosen = chosenVoice();
+            const settings = { text: text.value.slice(0, 2000), voice: chosen, language: language.value,
+                speed: SPEEDS[speed.value], pitch: PITCHES[pitch.value] };
+            const key = JSON.stringify(settings);
+            if (last && last.key === key) return last;
+            if (!settings.text.trim()) throw new Error("Type some text first.");
+            const engine = requestFor(chosen, settings.language);
+            status.textContent = "Getting the speech files ready…";
+            if (!(await ensurePacks(packsFor(engine)))) throw new Error("The speech files are not downloaded.");
+            status.textContent = "Making speech… (the first time loads the model, this can take a while)";
+            const v = engine.engine === "supertonic" ? {} : await voiceFor(target, { voice: chosen });
+            const job = call("speak", Object.assign({ text: settings.text, speed: settings.speed, pitch: settings.pitch }, engine, v),
+                v.voiceAudio ? [v.voiceAudio.buffer] : []);
+            request = job.id;
+            const result = await job.promise;
+            request = 0;
+            last = { key, settings, data: wav(result.result, result.sampleRate), seconds: result.result.length / result.sampleRate };
+            return last;
+        };
+        const run = (then) => async () => {
+            busy(true);
+            try {
+                await then(await make());
+            } catch (error) {
+                if (recorder) status.textContent = error.message === "cancelled" ? "" : `Could not make the sound: ${error.message}`;
+            } finally {
+                if (recorder) busy(false);
+            }
+        };
+        preview.onclick = run(async (made) => {
+            if (audio) audio.pause();
+            audio = new Audio(URL.createObjectURL(new Blob([made.data], { type: "audio/wav" })));
+            audio.play();
+            status.textContent = `Playing (${made.seconds.toFixed(1)} s).`;
+        });
+        add.onclick = run(async (made) => {
+            const storage = runtime.storage;
+            const asset = storage.createAsset(storage.AssetType.Sound, storage.DataFormat.WAV, made.data, null, true);
+            const soundName = name.value.trim() || "speech";
+            await vm.addSound({ name: soundName, dataFormat: storage.DataFormat.WAV, asset, md5: `${asset.assetId}.${storage.DataFormat.WAV}`,
+                assetId: asset.assetId, pmCredit: soundCredit(made.settings.voice, target) }, target.id);
+            status.textContent = `Added "${soundName}" (${made.seconds.toFixed(1)} s) to ${target.isStage ? "the stage" : target.getName()}.`;
+        });
+        close.onclick = () => {
+            cancel(request);
+            if (audio) audio.pause();
+            overlay.remove();
+            recorder = null;
+        };
+        overlay.onkeydown = (event) => { if (event.key === "Escape") close.onclick(); };
+        recorder = overlay;
+    }
 
     const percent = (value, table) => {
         const named = table[Scratch.Cast.toString(value).toLowerCase().trim()];
@@ -638,19 +919,27 @@
                         arguments: { SPEED: { type: Scratch.ArgumentType.STRING, menu: "speeds", defaultValue: "normal" } } },
                     { opcode: "setPitch", blockType: Scratch.BlockType.COMMAND, text: "set pitch to [PITCH]",
                         arguments: { PITCH: { type: Scratch.ArgumentType.STRING, menu: "pitches", defaultValue: "normal" } } },
+                    { blockType: Scratch.BlockType.LABEL, text: "Pocket voices: 6 languages" },
+                    { blockType: Scratch.BlockType.LABEL, text: "Supertonic voices: 31 languages" },
                     "---",
                     { blockType: Scratch.BlockType.LABEL, text: "Clone only voices you have permission to use." },
                     { opcode: "setCloneVoice", blockType: Scratch.BlockType.COMMAND, text: "set voice to clone of sound [SOUND]",
                         arguments: { SOUND: { type: Scratch.ArgumentType.STRING, menu: "sounds" } } },
+                    "---",
+                    { blockType: Scratch.BlockType.BUTTON, func: "openRecorder", text: "Make a speech sound" },
                 ],
                 menus: {
-                    voices: { acceptReporters: true, items: Object.keys(VOICES) },
-                    languages: { acceptReporters: true, items: LANGUAGES },
+                    voices: { acceptReporters: true, items: Object.keys(VOICES).concat(Object.keys(SUPERTONIC_VOICES)) },
+                    languages: { acceptReporters: true, items: Object.keys(LANGUAGES) },
                     speeds: { acceptReporters: true, items: Object.keys(SPEEDS) },
                     pitches: { acceptReporters: true, items: Object.keys(PITCHES) },
                     sounds: { acceptReporters: true, items: "soundMenu" },
                 },
             };
+        }
+
+        openRecorder() {
+            openRecorder();
         }
 
         soundMenu() {
@@ -677,7 +966,7 @@
 
         setVoice(args, util) {
             const name = Scratch.Cast.toString(args.VOICE).toLowerCase().trim();
-            if (VOICES[name] !== undefined) stateOf(util.target).voice = { name };
+            if (VOICES[name] !== undefined || SUPERTONIC_VOICES[name]) stateOf(util.target).voice = { name };
         }
 
         setCloneVoice(args, util) {
@@ -687,7 +976,7 @@
 
         setLanguage(args, util) {
             const language = Scratch.Cast.toString(args.LANGUAGE).toLowerCase().trim();
-            if (LANGUAGES.includes(language)) stateOf(util.target).language = language;
+            if (LANGUAGES[language]) stateOf(util.target).language = language;
         }
 
         setSpeed(args, util) {
