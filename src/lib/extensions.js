@@ -64,11 +64,11 @@ export default [
         creator: "pooiod7",
     },
     {
-        name: "Text To Speech: Redone",
-        description: "A better alternitive to the base text to speech extension. Powered by the TTStool API",
+        name: "Text To Speech",
+        description: "Offline voices made on this computer with Pocket TTS by Kyutai, with voice cloning, speed and pitch.",
         code: "PuzzlingGGG/ttsrV2.js",
         banner: "PuzzlingGGG/tts.avif",
-        creator: "PuzzlingGGG",
+        creator: "Wolowolf",
         isGitHub: true,
     },
     {
