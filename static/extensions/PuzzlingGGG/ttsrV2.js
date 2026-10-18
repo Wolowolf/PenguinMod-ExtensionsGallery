@@ -41,6 +41,22 @@
         url: "https://huggingface.co/Supertone/supertonic-3", license: "OpenRAIL-M",
         licenseUrl: "https://huggingface.co/Supertone/supertonic-3/blob/main/LICENSE", needsCredit: true };
     const CC_BY = { license: "CC BY 4.0", licenseUrl: "https://creativecommons.org/licenses/by/4.0/" };
+    // Loudkit (loudr-1-turbo, Apache-2.0): only in "Make a speech sound", run by the app itself
+    // (onnxruntime-node, POST __speech__/loudkit). Its voices and the language each one speaks.
+    const LOUDKIT_VOICES = {
+        clara: "en", emma: "en", henry: "en", joe: "en", kathleen: "en", lucy: "en", miles: "en", oliver: "en", oscar: "en",
+        sophie: "en", carmen: "es", dave: "es", colette: "fr", henri: "fr", kerstin: "de", thorsten: "de", dante: "it",
+        paola: "it", darkman: "pl", gosia: "pl", tugao: "pt", ines: "pt", nathalie: "nl", pim: "nl", nils: "sv", selma: "sv",
+        freja: "da", soren: "da",
+    };
+    const LOUDKIT_CREDIT = { title: "Loudkit loudr-1-turbo (the speech is machine-generated)", by: "loudreader",
+        url: "https://huggingface.co/loudreader/loudr-1-turbo", license: "Apache-2.0",
+        licenseUrl: "https://www.apache.org/licenses/LICENSE-2.0", needsCredit: true };
+    // Loudkit voices made from CC BY 4.0 recordings (the others are CC0)
+    const KYUTAI_VOICES = ["Kyutai tts-voices", "https://huggingface.co/kyutai/tts-voices"];
+    const CML_TTS = ["CML-TTS", "https://huggingface.co/datasets/ylacombe/cml-tts"];
+    const LOUDKIT_CC_BY = { colette: KYUTAI_VOICES, henri: KYUTAI_VOICES, carmen: CML_TTS, ines: CML_TTS,
+        dante: ["Multilingual LibriSpeech (MLS)", "https://huggingface.co/datasets/facebook/multilingual_librispeech"] };
     const VCTK = (speaker) => Object.assign({ title: `VCTK speaker ${speaker}`, by: "CSTR, University of Edinburgh",
         url: "https://datashare.ed.ac.uk/handle/10283/3443", modified: true, needsCredit: true }, CC_BY);
     // Only voices that allow commercial use (CC BY 4.0 needs a credit, CC0 does not)
@@ -220,7 +236,8 @@
             if (!ort) {
                 ort = await import(base + "onnxruntime/ort.wasm.bundle.min.mjs");
                 ort.env.wasm.wasmPaths = { wasm: base + "onnxruntime/ort-wasm-simd-threaded.wasm" };
-                ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(navigator.hardwareConcurrency || 4, 4) : 1;
+                // Several threads need SharedArrayBuffer (the app and packaged Windows games turn it on)
+                ort.env.wasm.numThreads = typeof SharedArrayBuffer !== "undefined" ? Math.min(navigator.hardwareConcurrency || 4, 4) : 1;
             }
         }
 
@@ -515,6 +532,10 @@
                 const result = new Float32Array(resample(stretch(audio.samples, st ? pitch : pitch / speed), pitch));
                 return { result, sampleRate: audio.rate };
             }
+            if (type === "pitch") { // Loudkit's speech (made by the app): only the pitch is changed here
+                const pitch = data.pitch / 100;
+                return { result: new Float32Array(resample(stretch(data.samples, pitch), pitch)) };
+            }
             throw new Error(`unknown request ${type}`);
         }
 
@@ -761,6 +782,11 @@
     // ------------------------------------------------------------------------------------------
     const soundCredit = (voice, target) => {
         if (SUPERTONIC_VOICES[voice.name]) return Object.assign({ v: 1 }, SUPERTONIC_CREDIT);
+        if (voice.loudkit) {
+            const source = LOUDKIT_CC_BY[voice.loudkit];
+            return Object.assign({ v: 1 }, LOUDKIT_CREDIT, source ? { extra: [Object.assign({ title: `Loudkit voice "${voice.loudkit}" (voice profile made from a recording)`,
+                by: source[0], url: source[1], modified: true, needsCredit: true }, CC_BY)] } : {});
+        }
         const extra = [ENGINE_CREDITS[1]];
         if (voice.sound) {
             const sound = target.getSounds().find((s) => s.name === voice.sound);
@@ -792,6 +818,9 @@
         };
         group("Pocket TTS", Object.keys(VOICES).map((v) => [`voice:${v}`, v]));
         group("Supertonic 3", Object.keys(SUPERTONIC_VOICES).map((v) => [`voice:${v}`, v]));
+        const languageName = (code) => Object.keys(LANGUAGES).find((l) => LANGUAGES[l] === code);
+        group("Loudkit (only here, not in blocks; downloads about 2.5 GB once)", Object.keys(LOUDKIT_VOICES).map((v) => [`loudkit:${v}`, `${v} (${languageName(LOUDKIT_VOICES[v])})`]));
+        const LOUDKIT_LANGUAGES = Object.keys(LANGUAGES).filter((l) => Object.values(LOUDKIT_VOICES).includes(LANGUAGES[l]));
         const sounds = target.getSounds().map((s) => s.name);
         if (sounds.length) group("Pocket TTS, clone of a sound of this sprite (only voices you have permission to use)", sounds.map((s) => [`sound:${s}`, `clone of ${s}`]));
         const language = el("select", field);
@@ -805,18 +834,23 @@
         const name = el("input", field, { value: "speech", maxLength: 80 });
         const note = el("div", "font-size:12px;color:#666;margin-bottom:10px;");
         const status = el("div", "min-height:18px;margin-bottom:10px;color:#4c6ef5;");
-        const chosenVoice = () => (voice.value.startsWith("sound:") ? { sound: voice.value.slice(6) } : { name: voice.value.slice(6) });
-        const fillLanguages = () => {
-            const st = !!SUPERTONIC_VOICES[chosenVoice().name];
-            const keep = language.value || "english";
+        const chosenVoice = () => (voice.value.startsWith("sound:") ? { sound: voice.value.slice(6) }
+            : voice.value.startsWith("loudkit:") ? { loudkit: voice.value.slice(8) } : { name: voice.value.slice(6) });
+        // A Loudkit voice starts in its own language when picked
+        const fillLanguages = (picked) => {
+            const chosen = chosenVoice();
+            const st = !!SUPERTONIC_VOICES[chosen.name];
+            const list = chosen.loudkit ? LOUDKIT_LANGUAGES : st ? Object.keys(LANGUAGES) : POCKET_LANGUAGES;
+            const keep = chosen.loudkit && picked ? languageName(LOUDKIT_VOICES[chosen.loudkit]) : language.value || "english";
             language.textContent = "";
-            for (const l of st ? Object.keys(LANGUAGES) : POCKET_LANGUAGES) language.append(el("option", null, { value: l, textContent: l }));
-            language.value = (st ? LANGUAGES[keep] : POCKET_LANGUAGES.includes(keep)) ? keep : "english";
-            note.textContent = st ? "Supertonic 3 (OpenRAIL-M): the credit says the speech is machine-generated; keep that in your game's credits."
+            for (const l of list) language.append(el("option", null, { value: l, textContent: l }));
+            language.value = list.includes(keep) ? keep : "english";
+            note.textContent = chosen.loudkit ? "Loudkit (Apache-2.0), runs on this computer: the credit says the speech is machine-generated. Other languages than the voice's own get its accent."
+                : st ? "Supertonic 3 (OpenRAIL-M): the credit says the speech is machine-generated; keep that in your game's credits."
                 : "Pocket TTS (CC BY 4.0): the sound's credits go into the credit sprite.";
         };
         voice.value = `voice:${stateOf(target).voice.name && (VOICES[stateOf(target).voice.name] !== undefined || SUPERTONIC_VOICES[stateOf(target).voice.name]) ? stateOf(target).voice.name : "alba"}`;
-        voice.onchange = fillLanguages;
+        voice.onchange = () => fillLanguages(true);
         fillLanguages();
         box.append(label("Text"), text, label("Voice"), voice, label("Language"), language);
         const row = el("div", "display:flex;gap:12px;");
@@ -842,6 +876,23 @@
             const key = JSON.stringify(settings);
             if (last && last.key === key) return last;
             if (!settings.text.trim()) throw new Error("Type some text first.");
+            if (chosen.loudkit) {
+                status.textContent = "Getting the Loudkit files ready…";
+                if (!(await ensurePacks(["loudkit-engine", "loudkit-turbo"]))) throw new Error("The Loudkit files are not downloaded.");
+                status.textContent = "Making speech with Loudkit… (the first time loads the model, this can take a while)";
+                const res = await fetch(`${BASE}loudkit`, { method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: settings.text, voice: chosen.loudkit, language: LANGUAGES[settings.language], speed: settings.speed / 100 }) });
+                if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || `error ${res.status}`);
+                if (!recorder) throw new Error("cancelled");
+                const sampleRate = Number(res.headers.get("X-Sample-Rate"));
+                const samples = new Float32Array(await res.arrayBuffer());
+                const job = call("pitch", { samples, pitch: settings.pitch }, [samples.buffer]);
+                request = job.id;
+                const shifted = await job.promise;
+                request = 0;
+                last = { key, settings, data: wav(shifted.result, sampleRate), seconds: shifted.result.length / sampleRate };
+                return last;
+            }
             const engine = requestFor(chosen, settings.language);
             status.textContent = "Getting the speech files ready…";
             if (!(await ensurePacks(packsFor(engine)))) throw new Error("The speech files are not downloaded.");
