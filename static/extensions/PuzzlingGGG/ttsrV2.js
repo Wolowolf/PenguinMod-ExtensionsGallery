@@ -24,15 +24,16 @@
     const ID = "pmTextToSpeech";
     const BASE = globalThis.pmSpeechBase || "https://studio.penguinmod.com/__speech__/";
 
-    // Supertonic speaks all of these; Pocket TTS only POCKET_LANGUAGES (other languages: english)
+    // Supertonic speaks all of these; Pocket TTS only POCKET_LANGUAGES (other languages: english).
+    // Menu order: Pocket's 6, then the others, each group from the most to the least spoken (all speakers).
     const LANGUAGES = {
-        english: "en", arabic: "ar", bulgarian: "bg", croatian: "hr", czech: "cs", danish: "da", dutch: "nl",
-        estonian: "et", finnish: "fi", french: "fr", german: "de", greek: "el", hindi: "hi", hungarian: "hu",
-        indonesian: "id", italian: "it", japanese: "ja", korean: "ko", latvian: "lv", lithuanian: "lt", polish: "pl",
-        portuguese: "pt", romanian: "ro", russian: "ru", slovak: "sk", slovenian: "sl", spanish: "es", swedish: "sv",
-        turkish: "tr", ukrainian: "uk", vietnamese: "vi",
+        english: "en", spanish: "es", french: "fr", portuguese: "pt", german: "de", italian: "it",
+        hindi: "hi", arabic: "ar", russian: "ru", indonesian: "id", japanese: "ja", turkish: "tr", vietnamese: "vi",
+        korean: "ko", polish: "pl", ukrainian: "uk", dutch: "nl", romanian: "ro", greek: "el", swedish: "sv",
+        hungarian: "hu", czech: "cs", bulgarian: "bg", slovak: "sk", danish: "da", finnish: "fi", croatian: "hr",
+        lithuanian: "lt", slovenian: "sl", latvian: "lv", estonian: "et",
     };
-    const POCKET_LANGUAGES = ["english", "french", "german", "italian", "portuguese", "spanish"];
+    const POCKET_LANGUAGES = ["english", "spanish", "french", "portuguese", "german", "italian"];
     // Supertonic's preset voices (part of the model, same licence)
     const SUPERTONIC_VOICES = {};
     for (let i = 1; i <= 5; i++) SUPERTONIC_VOICES[`supertonic female ${i}`] = `F${i}`;
@@ -987,16 +988,13 @@
                     { opcode: "stopSpeaking", blockType: Scratch.BlockType.COMMAND, text: "stop speaking" },
                     { opcode: "isSpeaking", blockType: Scratch.BlockType.BOOLEAN, text: "speaking?" },
                     "---",
-                    { opcode: "setVoice", blockType: Scratch.BlockType.COMMAND, text: "set voice to [VOICE]",
-                        arguments: { VOICE: { type: Scratch.ArgumentType.STRING, menu: "voices", defaultValue: "alba" } } },
-                    { opcode: "setLanguage", blockType: Scratch.BlockType.COMMAND, text: "set language to [LANGUAGE]",
-                        arguments: { LANGUAGE: { type: Scratch.ArgumentType.STRING, menu: "languages", defaultValue: "english" } } },
+                    { opcode: "setVoice", blockType: Scratch.BlockType.COMMAND, text: "set voice to [VOICE] language to [LANGUAGE]",
+                        arguments: { VOICE: { type: Scratch.ArgumentType.STRING, menu: "voices", defaultValue: "alba" },
+                            LANGUAGE: { type: Scratch.ArgumentType.STRING, menu: "languages", defaultValue: "english" } } },
                     { opcode: "setSpeed", blockType: Scratch.BlockType.COMMAND, text: "set speed to [SPEED]",
                         arguments: { SPEED: { type: Scratch.ArgumentType.STRING, menu: "speeds", defaultValue: "normal" } } },
                     { opcode: "setPitch", blockType: Scratch.BlockType.COMMAND, text: "set pitch to [PITCH]",
                         arguments: { PITCH: { type: Scratch.ArgumentType.STRING, menu: "pitches", defaultValue: "normal" } } },
-                    { blockType: Scratch.BlockType.LABEL, text: "Pocket voices: 6 languages" },
-                    { blockType: Scratch.BlockType.LABEL, text: "Supertonic voices: 31 languages" },
                     "---",
                     { blockType: Scratch.BlockType.LABEL, text: "Clone only voices you have permission to use." },
                     { opcode: "setCloneVoice", blockType: Scratch.BlockType.COMMAND, text: "set voice to clone of sound [SOUND]",
@@ -1006,7 +1004,7 @@
                 ],
                 menus: {
                     voices: { acceptReporters: true, items: Object.keys(VOICES).concat(Object.keys(SUPERTONIC_VOICES)) },
-                    languages: { acceptReporters: true, items: Object.keys(LANGUAGES) },
+                    languages: { acceptReporters: true, items: "languageMenu" },
                     speeds: { acceptReporters: true, items: Object.keys(SPEEDS) },
                     pitches: { acceptReporters: true, items: Object.keys(PITCHES) },
                     sounds: { acceptReporters: true, items: "soundMenu" },
@@ -1016,6 +1014,14 @@
 
         openRecorder() {
             openRecorder();
+        }
+
+        // All 31 languages; with a Pocket voice in the same block, only Pocket's 6 can be picked (the others
+        // are greyed out). blockArgs = the block's other menus (the editor's VM passes them).
+        languageMenu(targetId, blockArgs) {
+            const voice = blockArgs && blockArgs.VOICE;
+            const pocket = typeof voice === "string" && VOICES[voice] !== undefined;
+            return Object.keys(LANGUAGES).map((l) => ({ text: l, value: l, disabled: pocket && !POCKET_LANGUAGES.includes(l) }));
         }
 
         soundMenu() {
@@ -1040,19 +1046,18 @@
             return stateOf(util.target).speaking;
         }
 
+        // Changes only what differs: an unchanged voice or language keeps what was loaded for it
         setVoice(args, util) {
+            const state = stateOf(util.target);
             const name = Scratch.Cast.toString(args.VOICE).toLowerCase().trim();
-            if (VOICES[name] !== undefined || SUPERTONIC_VOICES[name]) stateOf(util.target).voice = { name };
+            const language = Scratch.Cast.toString(args.LANGUAGE).toLowerCase().trim();
+            if ((VOICES[name] !== undefined || SUPERTONIC_VOICES[name]) && (state.voice.name !== name || state.voice.sound)) state.voice = { name };
+            if (LANGUAGES[language] && state.language !== language) state.language = language;
         }
 
         setCloneVoice(args, util) {
             const sound = Scratch.Cast.toString(args.SOUND);
             if (util.target.getSounds().some((s) => s.name === sound)) stateOf(util.target).voice = { sound };
-        }
-
-        setLanguage(args, util) {
-            const language = Scratch.Cast.toString(args.LANGUAGE).toLowerCase().trim();
-            if (LANGUAGES[language]) stateOf(util.target).language = language;
         }
 
         setSpeed(args, util) {
