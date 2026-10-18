@@ -966,6 +966,39 @@
         recorder = overlay;
     }
 
+    // Editor only: a set voice block that gets a Pocket voice while its language menu holds a language
+    // Pocket can't speak switches that menu to english (same undo step as the voice change)
+    const hookedWorkspaces = new WeakSet();
+    const hookWorkspaces = () => {
+        const SB = globalThis.ScratchBlocks;
+        const main = SB && SB.getMainWorkspace && SB.getMainWorkspace();
+        if (!main) return;
+        const flyout = main.getFlyout && main.getFlyout();
+        for (const ws of [main, flyout && flyout.getWorkspace()]) {
+            if (!ws || hookedWorkspaces.has(ws)) continue;
+            hookedWorkspaces.add(ws);
+            ws.addChangeListener((event) => {
+                if (event.type !== SB.Events.CHANGE || event.element !== "field" || event.name !== "voices" || VOICES[event.newValue] === undefined) return;
+                const menu = ws.getBlockById(event.blockId);
+                const block = menu && menu.getParent();
+                if (!block || block.type !== `${ID}_setVoice`) return;
+                const input = block.getInput("LANGUAGE");
+                const languageMenu = input && input.connection && input.connection.targetBlock();
+                const field = languageMenu && languageMenu.isShadow() && languageMenu.getField("languages");
+                if (!field || POCKET_LANGUAGES.includes(field.getValue())) return;
+                // A menu choice has no event group: give the voice change one (it is already on the undo
+                // stack) and put the language change in it, so one undo reverts both
+                if (!event.group) event.group = SB.utils.genUid();
+                const group = SB.Events.getGroup();
+                SB.Events.setGroup(event.group);
+                field.setValue("english");
+                SB.Events.setGroup(group);
+            });
+        }
+    };
+    hookWorkspaces();
+    runtime.on("PROJECT_LOADED", hookWorkspaces);
+
     const percent = (value, table) => {
         const named = table[Scratch.Cast.toString(value).toLowerCase().trim()];
         const number = named === undefined ? Scratch.Cast.toNumber(value) : named;
