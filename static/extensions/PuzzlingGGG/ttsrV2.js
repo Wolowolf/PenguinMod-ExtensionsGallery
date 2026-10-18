@@ -437,10 +437,11 @@
         if (worker && id) worker.postMessage({ type: "cancel", data: { id } });
     };
 
-    // The packs a language needs; the app offers to download missing ones. Outside the app (a
-    // packaged game) there is no installer and the files are next to the game.
+    // The packs a language needs; the app offers to download missing ones. A packaged game sets
+    // pmSpeechBase: it has no installer, the packager put the files next to it.
     const packRequests = new Map();
     const ensurePacks = (language) => {
+        if (globalThis.pmSpeechBase) return Promise.resolve(true);
         const packs = ["onnxruntime", "pocket-voices", `pocket-${language}`];
         const key = packs.join(",");
         if (!packRequests.has(key)) {
