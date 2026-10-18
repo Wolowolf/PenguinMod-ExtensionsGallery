@@ -1,6 +1,6 @@
 // name: Text To Speech
 // id: pmTextToSpeech
-// description: Offline text to speech with Pocket TTS and Supertonic 3 voices, voice cloning, speed and pitch; makes speech sounds too.
+// description: Offline text to speech with Pocket TTS and Supertonic 3 voices, voice cloning, speed and pitch; makes speech sounds too, also with Loudkit.
 // license: MIT AND Apache-2.0
 //
 // Speech is made on this computer with Pocket TTS by Kyutai (https://huggingface.co/kyutai/pocket-tts,
@@ -13,6 +13,8 @@
 // SentencePiece tokenizer, voices encoded from their clips, speed and pitch added. The Supertonic
 // steps and text clean-up follow Supertone's web example (https://github.com/supertone-inc/supertonic,
 // web/helper.js, MIT, Copyright (c) 2025 Supertone Inc.), rewritten with typed arrays.
+// "Make a speech sound" can also use Loudkit (loudr-1-turbo or loudr-1 by loudreader, Apache-2.0,
+// https://github.com/loudreader/loudkit), voices and clones, which the app runs with onnxruntime-node.
 // The files come from the app (https://studio.penguinmod.com/__speech__/), which downloads each
 // pack once; nothing is sent anywhere.
 (function (Scratch) {

@@ -65,7 +65,7 @@ export default [
     },
     {
         name: "Text To Speech",
-        description: "Offline voices made on this computer with Pocket TTS by Kyutai, with voice cloning, speed and pitch.",
+        description: "Offline voices made on this computer: Pocket TTS and Supertonic 3 in blocks, plus Loudkit for speech sounds, with voice cloning, speed and pitch.",
         code: "PuzzlingGGG/ttsrV2.js",
         banner: "PuzzlingGGG/tts.avif",
         creator: "Wolowolf",
