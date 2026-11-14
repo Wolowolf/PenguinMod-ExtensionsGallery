@@ -72,14 +72,6 @@ export default [
         isGitHub: true,
     },
     {
-        name: "E2EE",
-        description: "A general-purpose E2EE (End-to-End Encryption) extension for Scratch.",
-        code: "MikeDev101/e2ee.js",
-        banner: "MikeDev101/e2ee.svg",
-        creator: "MikeDev101",
-        isGitHub: true,
-    },
-    {
         name: "WebRTC",
         description: "A barebones WebRTC implementation.",
         code: "MikeDev101/webrtc.js",
@@ -114,16 +106,6 @@ export default [
         banner: "qxsck/big-decimal.svg",
         creator: "qxsck",
         isGitHub: true,
-    },
-    {
-        name: "3D Vectors & Quaternions",
-        description: "Perform 3D Math and Rotations with Vectors and Quaternions",
-        code: "Div/divVecQuat.js",
-        banner: "Div/divVecQuat.svg",
-        creator: "Dicuo",
-        creatorAlias: "Div",
-        isGitHub: true,
-        tags: ["new", "customtype", "3D", "data", "utility", "math"]
     },
     {
         name: "Random Utilities",
