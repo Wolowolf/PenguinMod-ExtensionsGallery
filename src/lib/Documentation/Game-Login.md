@@ -1,8 +1,8 @@
-# Google Auth and Discord Auth
+# Sign-in
 
-These two extensions let players log in to your game with their **Google** or **Discord** account. They use **your own** login setup: you create it once in Google's or Discord's developer website and enter its ID with a block. The game talks to Google or Discord directly; no other server sees the player's data.
+The Sign-in extension lets players log in to your game with their **Google** or **Discord** account. It uses **your own** login setup: you create it once in Google's or Discord's developer website and enter its ID with a block. The game talks to Google or Discord directly; no other server sees the player's data.
 
-What the game gets: name, user ID, picture (avatar), and the email address only if you turn it on. The details stay in the game's memory until the player logs out or closes the game; nothing is saved.
+What the game gets: name, username (Discord), user ID, picture, and the email address only if you turn it on. The details stay in the game's memory until the player logs out or closes the game; nothing is saved.
 
 Before the login window opens, the game shows the player a short notice with a link to your **privacy policy**. If you sell your game or publish it publicly, you need a privacy policy: there is a template at the end of this page.
 
@@ -13,61 +13,52 @@ Before the login window opens, the game shows the player a short notice with a l
 
 The game picks the right way by itself.
 
-## Google Auth
+## Example
 
 ```scratch
-set desktop app client ID [123-abc.apps.googleusercontent.com] secret [GOCSPX-...]:: #4285F4
-set web page client ID [456-def.apps.googleusercontent.com] return page [https://example.com/mygame/callback.html]:: #4285F4
-set privacy policy address to [https://example.com/privacy.html]:: #4285F4
-also ask for email address [no v]:: #4285F4
-log in with Google:: #4285F4
-if <logged in?:: #4285F4> then
-say (join [Hello ] (user [name v]:: #4285F4))
+set [Google v] client ID for [desktop app v] to [123-abc.apps.googleusercontent.com]:: #4F6BED
+set [Google v] client secret to [GOCSPX-...]:: #4F6BED
+set [Google v] client ID for [web page v] to [456-def.apps.googleusercontent.com]:: #4F6BED
+set [Google v] return address for [web page v] to [https://example.com/mygame/callback.html]:: #4F6BED
+set [Discord v] client ID for [desktop app v] to [123456789012345678]:: #4F6BED
+set [Discord v] return address for [web page v] to [https://example.com/mygame/callback.html]:: #4F6BED
+set privacy policy address to [https://example.com/privacy.html]:: #4F6BED
+also ask for email address [no v]:: #4F6BED
+log in with [Google v]:: #4F6BED
+if <logged in?:: #4F6BED> then
+say (join [Hello ] (user [name v]:: #4F6BED))
 else
-say (last login error:: #4285F4)
+say (last login error:: #4F6BED)
 end
 ```
 
-### Setup (Google Cloud Console)
+## Setup for Google (Google Cloud Console)
 
-1. Go to `console.cloud.google.com`, create a project, open **Google Auth Platform**, and fill in the **Branding** page (app name, support email, your privacy policy address). Under **Audience**, choose **External**. While the app is in "Testing", only the test users you list can log in; click **Publish app** when your game is ready. With only the basic permissions these extensions use (`openid`, `profile`, and `email` if you turn it on), Google does not need to review your app.
-2. Under **Clients**, create a client of type **Desktop app**. Copy its client ID and client secret into the `set desktop app client ID` block. (Google itself says a desktop app's secret can't be kept secret; it's fine inside the game.)
-3. For a web game, create a second client of type **Web application**. Under **Authorized redirect URIs**, add the exact address of your `callback.html` (for example `https://example.com/mygame/callback.html`). Put that client ID and the same address into the `set web page client ID` block.
+1. Go to `console.cloud.google.com`, create a project, open **Google Auth Platform**, and fill in the **Branding** page (app name, support email, your privacy policy address). Under **Audience**, choose **External**. While the app is in "Testing", only the test users you list can log in; click **Publish app** when your game is ready. With only the basic permissions this extension uses (`openid`, `profile`, and `email` if you turn it on), Google does not need to review your app.
+2. Under **Clients**, create a client of type **Desktop app**. Put its client ID into `set [Google] client ID for [desktop app]` and its secret into `set [Google] client secret`. (Google itself says a desktop app's secret can't be kept secret; it's fine inside the game.)
+3. For a web game, create a second client of type **Web application**. Under **Authorized redirect URIs**, add the exact address of your `callback.html` (for example `https://example.com/mygame/callback.html`). Put that client ID into `set [Google] client ID for [web page]` and the same address into `set [Google] return address for [web page]`.
 
 Notes:
 - Google may refuse a return page on a website you don't own (for example itch.io's game pages). Your own website or GitHub Pages works best.
 - The web way uses Google's "token" login for websites without a server. Google recommends a server for big websites; a game doesn't need one.
+- Desktop games come back to any free port of `http://127.0.0.1/`: Google needs no desktop return address.
 
-## Discord Auth
-
-```scratch
-set client ID [123456789012345678]:: #5865F2
-set desktop app return address [http://127.0.0.1:53682/discord]:: #5865F2
-set web page return page [https://example.com/mygame/callback.html]:: #5865F2
-set privacy policy address to [https://example.com/privacy.html]:: #5865F2
-also ask for email address [no v]:: #5865F2
-log in with Discord:: #5865F2
-if <logged in?:: #5865F2> then
-say (join [Hello ] (user [display name v]:: #5865F2))
-else
-say (last login error:: #5865F2)
-end
-```
-
-### Setup (Discord Developer Portal)
+## Setup for Discord (Discord Developer Portal)
 
 1. Go to `discord.com/developers/applications` and create an application. Fill in its **Privacy Policy URL** on the **General Information** page.
-2. On the **OAuth2** page, copy the **Client ID** into the `set client ID` block, and turn on **Public Client**. (That lets the game log in without a secret.)
-3. Under **Redirects**, add `http://127.0.0.1:53682/discord` for desktop games (or your own `http://127.0.0.1:<port>/<name>` address, and put the same in the `set desktop app return address` block), and the exact address of your `callback.html` for web games.
+2. On the **OAuth2** page, copy the **Client ID** into `set [Discord] client ID for [desktop app]`, and turn on **Public Client**. (That lets the game log in without a secret.) The same ID works for web games: you only need to set it once.
+3. Under **Redirects**, add `http://127.0.0.1:53682/discord` for desktop games (or your own `http://127.0.0.1:<port>/<name>` address, and put the same in `set [Discord] return address for [desktop app]`), and the exact address of your `callback.html` for web games (put it in `set [Discord] return address for [web page]`).
 
 ## Blocks
 
-- **set ... client ID**: your login setup. Use it before `log in`, e.g. under the green flag.
+- **set [service] client ID for [desktop app / web page] to**: your login setup for that service. Use these before `log in`, e.g. under the green flag.
+- **set [service] client secret to**: only needed for a Google desktop client; leave it out for Discord.
+- **set [service] return address for [desktop app / web page] to**: where the login sends the player back to (see the setup above).
 - **set privacy policy address to**: shown as a link in the notice before the login window opens.
 - **also ask for email address**: `no` by default. Only turn it on if your game really needs the email address.
-- **log in with Google / Discord**: shows the notice, opens the login and waits until it is finished, cancelled or has failed (after 5 minutes at most).
+- **log in with [Google / Discord]**: shows the notice, opens the login and waits until it is finished, cancelled or has failed (after 5 minutes at most). Logging in with the other service ends the first login.
 - **logged in?**: true after a successful login.
-- **user [ ]**: name, user ID, picture / avatar address, email (empty unless you asked for it).
+- **user [ ]**: name, username (Discord; empty for Google), user ID, picture address, email (empty unless you asked for it), or the service the player logged in with.
 - **last login error**: why the last login didn't work (e.g. `cancelled`, `login window closed`, `access_denied`), empty if it worked.
 - **log out**: forgets the player's details and ends the game's access at Google or Discord.
 
