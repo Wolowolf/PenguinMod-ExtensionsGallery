@@ -80,15 +80,6 @@ export default [
         isGitHub: true,
     },
     {
-        name: "PenguinHook",
-        description: "Send Webhook requests, that can be Discord or any type of webhook.",
-        code: "MubiLop/penguinhook.js",
-        banner: "MubiLop/penguinhook.avif",
-        creator: "cicerorph",
-        creatorAlias: "MubiLop",
-        isGitHub: true,
-    },
-    {
         name: "Number Utilities",
         description: "Adds blocks for number formatting and manipulation.",
         notes: "Art made by hazel",
@@ -155,9 +146,8 @@ export default [
         isGitHub: false,
     },
     {
-        name: "Sign-in",
-        description: "Let players log in with Google or Discord through your own Google client or Discord app. Gets name, username, picture, ID and (if you ask) email; shows your privacy policy first.",
-        notes: "Discord login by enderhacker",
+        name: "Google Sign-in",
+        description: "Let players log in with Google through your own Google client. Gets name, picture, ID and (if you ask) email; shows your privacy policy first.",
         documentation: "Game-Login",
         code: "Ikelene/googleAuthExtension.js",
         banner: "Ikelene/SignIn.svg",

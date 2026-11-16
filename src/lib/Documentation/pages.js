@@ -25,7 +25,7 @@ import BoxedPhysics from "./BoxedPhysics.md?raw";
 // Resolution
 import Resolution from "./Resolution.md?raw";
 
-// Google Auth and Discord Auth
+// Google Sign-in
 import GameLogin from "./Game-Login.md?raw";
 
 // Date Format V2
