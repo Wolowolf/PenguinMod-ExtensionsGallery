@@ -65,7 +65,6 @@
                         opcode: 'generateSignKey',
                         text: 'generate HMAC key',
                         blockType: Scratch.BlockType.REPORTER,
-                        blockShape: Scratch.BlockShape.OCTAGONAL,
                         disableMonitor: true
                     },
                     {
@@ -74,7 +73,7 @@
                         blockType: Scratch.BlockType.REPORTER,
                         arguments: {
                             VALUE: { type: Scratch.ArgumentType.STRING, defaultValue: 'apple' },
-                            KEY: { type: Scratch.ArgumentType.EMPTY, shape: Scratch.BlockShape.OCTAGONAL }
+                            KEY: { type: Scratch.ArgumentType.EMPTY }
                         }
                     },
                     {
@@ -84,7 +83,7 @@
                         arguments: {
                             SIGNATURE: { type: Scratch.ArgumentType.STRING, defaultValue: 'signature' },
                             VALUE: { type: Scratch.ArgumentType.STRING, defaultValue: 'apple' },
-                            KEY: { type: Scratch.ArgumentType.EMPTY, shape: Scratch.BlockShape.OCTAGONAL }
+                            KEY: { type: Scratch.ArgumentType.EMPTY }
                         }
                     },
 
@@ -94,7 +93,6 @@
                         opcode: 'generateAESKey',
                         text: 'generate AES-GCM key (256-bit)',
                         blockType: Scratch.BlockType.REPORTER,
-                        blockShape: Scratch.BlockShape.OCTAGONAL,
                         disableMonitor: true
                     },
                     {
@@ -103,7 +101,7 @@
                         blockType: Scratch.BlockType.REPORTER,
                         arguments: {
                             PLAINTEXT: { type: Scratch.ArgumentType.STRING, defaultValue: 'apple' },
-                            KEY: { type: Scratch.ArgumentType.EMPTY, shape: Scratch.BlockShape.OCTAGONAL }
+                            KEY: { type: Scratch.ArgumentType.EMPTY }
                         }
                     },
                     {
@@ -112,7 +110,7 @@
                         blockType: Scratch.BlockType.REPORTER,
                         arguments: {
                             CIPHERTEXT: { type: Scratch.ArgumentType.STRING, defaultValue: 'encrypted' },
-                            KEY: { type: Scratch.ArgumentType.EMPTY, shape: Scratch.BlockShape.OCTAGONAL }
+                            KEY: { type: Scratch.ArgumentType.EMPTY }
                         }
                     },
 
@@ -122,7 +120,6 @@
                         opcode: 'generateRSAKey',
                         text: 'generate RSA-PSS keypair',
                         blockType: Scratch.BlockType.REPORTER,
-                        blockShape: Scratch.BlockShape.OCTAGONAL,
                         disableMonitor: true
                     },
                     {
@@ -131,7 +128,7 @@
                         blockType: Scratch.BlockType.REPORTER,
                         arguments: {
                             VALUE: { type: Scratch.ArgumentType.STRING, defaultValue: 'apple' },
-                            KEY: { type: Scratch.ArgumentType.EMPTY, shape: Scratch.BlockShape.OCTAGONAL }
+                            KEY: { type: Scratch.ArgumentType.EMPTY }
                         }
                     },
                     {
@@ -141,25 +138,23 @@
                         arguments: {
                             SIGNATURE: { type: Scratch.ArgumentType.STRING, defaultValue: 'signature' },
                             VALUE: { type: Scratch.ArgumentType.STRING, defaultValue: 'apple' },
-                            KEY: { type: Scratch.ArgumentType.EMPTY, shape: Scratch.BlockShape.OCTAGONAL }
+                            KEY: { type: Scratch.ArgumentType.EMPTY }
                         }
                     },
                     {
                         opcode: 'rsaPublicKey',
                         text: 'RSA public key from [KEY]',
                         blockType: Scratch.BlockType.REPORTER,
-                        blockShape: Scratch.BlockShape.OCTAGONAL,
                         arguments: {
-                            KEY: { type: Scratch.ArgumentType.EMPTY, shape: Scratch.BlockShape.OCTAGONAL }
+                            KEY: { type: Scratch.ArgumentType.EMPTY }
                         }
                     },
                     {
                         opcode: 'rsaPrivateKey',
                         text: 'RSA private key from [KEY]',
                         blockType: Scratch.BlockType.REPORTER,
-                        blockShape: Scratch.BlockShape.OCTAGONAL,
                         arguments: {
-                            KEY: { type: Scratch.ArgumentType.EMPTY, shape: Scratch.BlockShape.OCTAGONAL }
+                            KEY: { type: Scratch.ArgumentType.EMPTY }
                         }
                     },
                 ],
