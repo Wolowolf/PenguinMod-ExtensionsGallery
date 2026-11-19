@@ -73,7 +73,7 @@
                         blockType: Scratch.BlockType.REPORTER,
                         arguments: {
                             VALUE: { type: Scratch.ArgumentType.STRING, defaultValue: 'apple' },
-                            KEY: { type: Scratch.ArgumentType.EMPTY }
+                            KEY: { type: Scratch.ArgumentType.STRING }
                         }
                     },
                     {
@@ -83,7 +83,7 @@
                         arguments: {
                             SIGNATURE: { type: Scratch.ArgumentType.STRING, defaultValue: 'signature' },
                             VALUE: { type: Scratch.ArgumentType.STRING, defaultValue: 'apple' },
-                            KEY: { type: Scratch.ArgumentType.EMPTY }
+                            KEY: { type: Scratch.ArgumentType.STRING }
                         }
                     },
 
@@ -101,7 +101,7 @@
                         blockType: Scratch.BlockType.REPORTER,
                         arguments: {
                             PLAINTEXT: { type: Scratch.ArgumentType.STRING, defaultValue: 'apple' },
-                            KEY: { type: Scratch.ArgumentType.EMPTY }
+                            KEY: { type: Scratch.ArgumentType.STRING }
                         }
                     },
                     {
@@ -110,7 +110,7 @@
                         blockType: Scratch.BlockType.REPORTER,
                         arguments: {
                             CIPHERTEXT: { type: Scratch.ArgumentType.STRING, defaultValue: 'encrypted' },
-                            KEY: { type: Scratch.ArgumentType.EMPTY }
+                            KEY: { type: Scratch.ArgumentType.STRING }
                         }
                     },
 
@@ -128,7 +128,7 @@
                         blockType: Scratch.BlockType.REPORTER,
                         arguments: {
                             VALUE: { type: Scratch.ArgumentType.STRING, defaultValue: 'apple' },
-                            KEY: { type: Scratch.ArgumentType.EMPTY }
+                            KEY: { type: Scratch.ArgumentType.STRING }
                         }
                     },
                     {
@@ -138,7 +138,7 @@
                         arguments: {
                             SIGNATURE: { type: Scratch.ArgumentType.STRING, defaultValue: 'signature' },
                             VALUE: { type: Scratch.ArgumentType.STRING, defaultValue: 'apple' },
-                            KEY: { type: Scratch.ArgumentType.EMPTY }
+                            KEY: { type: Scratch.ArgumentType.STRING }
                         }
                     },
                     {
@@ -146,7 +146,7 @@
                         text: 'RSA public key from [KEY]',
                         blockType: Scratch.BlockType.REPORTER,
                         arguments: {
-                            KEY: { type: Scratch.ArgumentType.EMPTY }
+                            KEY: { type: Scratch.ArgumentType.STRING }
                         }
                     },
                     {
@@ -154,7 +154,7 @@
                         text: 'RSA private key from [KEY]',
                         blockType: Scratch.BlockType.REPORTER,
                         arguments: {
-                            KEY: { type: Scratch.ArgumentType.EMPTY }
+                            KEY: { type: Scratch.ArgumentType.STRING }
                         }
                     },
                 ],
